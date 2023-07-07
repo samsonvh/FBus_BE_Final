@@ -1,0 +1,223 @@
+﻿using AutoMapper;
+using FBus_BE.DTOs;
+using FBus_BE.DTOs.InputDTOs;
+using FBus_BE.DTOs.ListingDTOs;
+using FBus_BE.DTOs.PageDTOs;
+using FBus_BE.Enums;
+using FBus_BE.Exceptions;
+using FBus_BE.Models;
+using FBus_BE.Utils;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Linq.Expressions;
+
+namespace FBus_BE.Services.Implements
+{
+    public class StationService : IStationService
+    {
+        private Dictionary<string, string> errors;
+        private readonly FbusMainContext _context;
+        private readonly IMapper _mapper;
+        private readonly Dictionary<string, Expression<Func<Station, object>>> _orderDict;
+
+        public StationService(FbusMainContext context, IMapper mapper)
+        {
+            errors = new Dictionary<string, string>();
+            _context = context;
+            _mapper = mapper;
+            _orderDict = new Dictionary<string, Expression<Func<Station, object>>> {
+                { "id", station => station.Id }
+            };
+        }
+
+        public async Task<bool> ChangeStatus(int id, string status)
+        {
+            Station? station = await _context.Stations.FirstOrDefaultAsync(station => station.Id == id);
+            if (station == null)
+            {
+                if (station.Status != (byte)StationStatusEnum.Deleted)
+                {
+                    status = TextUtil.Capitalize(status);
+                    StationStatusEnum statusEnum;
+                    switch (status)
+                    {
+                        case nameof(StationStatusEnum.Active):
+                            statusEnum = StationStatusEnum.Active;
+                            break;
+                        case nameof(StationStatusEnum.Inactive):
+                            statusEnum = StationStatusEnum.Inactive;
+                            break;
+                        default:
+                            return false;
+                    }
+                    station.Status = (byte)statusEnum;
+                    _context.Stations.Update(station);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                throw new EntityNotFoundException("Station", id);
+            }
+        }
+
+        public async Task<StationDto> Create(int createdById, StationInputDto inputDto)
+        {
+            await CheckCreateDuplicate(inputDto);
+            if (errors.IsNullOrEmpty())
+            {
+                Station station = _mapper.Map<Station>(inputDto);
+                station.CreatedById = (short?)createdById;
+                station.Status = (byte)StationStatusEnum.Active;
+                _context.Stations.Add(station);
+                await _context.SaveChangesAsync();
+                return _mapper.Map<StationDto>(station);
+            }
+            else
+            {
+                throw new DuplicateException(errors);
+            }
+        }
+
+        public async Task<bool> Delete(int id)
+        {
+            Station? station = await _context.Stations.FirstOrDefaultAsync(station => station.Id == id);
+            if (station != null)
+            {
+                if (station.Status != (byte)StationStatusEnum.Deleted)
+                {
+                    station.Status = (byte)StationStatusEnum.Deleted;
+                    _context.Stations.Update(station);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                throw new EntityNotFoundException("Station", id);
+            }
+        }
+
+        public async Task<StationDto> GetDetails(int id)
+        {
+            Station? station = await _context.Stations
+                .Include(station => station.CreatedBy)
+                .FirstOrDefaultAsync(station => station.Id == id);
+            if (station != null)
+            {
+                return _mapper.Map<StationDto>(station);
+            }
+            else
+            {
+                throw new EntityNotFoundException("Station", id);
+            }
+        }
+
+        public async Task<DefaultPageResponse<StationListingDto>> GetList(StationPageRequest pageRequest)
+        {
+            DefaultPageResponse<StationListingDto> pageResponse = new DefaultPageResponse<StationListingDto>();
+            if (pageRequest.PageIndex == null)
+            {
+                pageRequest.PageIndex = 1;
+            }
+            if (pageRequest.PageSize == null)
+            {
+                pageRequest.PageSize = 10;
+            }
+            if (pageRequest.OrderBy == null)
+            {
+                pageRequest.OrderBy = "id";
+            }
+            int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
+            List<StationListingDto> stations = new List<StationListingDto>();
+            int totalCount = await _context.Stations
+                .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
+                .CountAsync();
+            if (totalCount > 0)
+            {
+                stations = pageRequest.Direction == "desc"
+                    ? await _context.Stations.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
+                                             .Skip(skippedCount)
+                                             .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                                             .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
+                                             .Select(station => _mapper.Map<StationListingDto>(station))
+                                             .ToListAsync()
+                    : await _context.Stations.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
+                                             .Skip(skippedCount)
+                                             .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                                             .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
+                                             .Select(station => _mapper.Map<StationListingDto>(station))
+                                             .ToListAsync();
+            }
+            pageResponse.Data = stations;
+            pageResponse.PageSize = (int)pageRequest.PageSize;
+            pageResponse.PageCount = (int)(totalCount / pageRequest.PageSize) + 1;
+            pageResponse.PageSize = (int)pageRequest.PageSize;
+            return pageResponse;
+        }
+
+        public async Task<StationDto> Update(int createdById, StationInputDto inputDto, int id)
+        {
+            Station? station = await _context.Stations
+                .Include(station => station.CreatedBy)
+                .FirstOrDefaultAsync(station => station.Id == id);
+            if (station == null)
+            {
+                throw new EntityNotFoundException("Station", id);
+            }
+            await CheckUpdateDuplicate(id, inputDto);
+            if (errors.IsNullOrEmpty())
+            {
+                station = _mapper.Map(inputDto, station);
+                _context.Stations.Update(station);
+                await _context.SaveChangesAsync();
+                return _mapper.Map<StationDto>(station);
+            }
+            else
+            {
+                throw new DuplicateException(errors);
+            }
+        }
+
+        private async Task CheckCreateDuplicate(StationInputDto inputDto)
+        {
+            List<Station> stations = await _context.Stations
+                .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                .Where(station => station.Code == inputDto.Code)
+                .ToListAsync();
+            foreach (Station station in stations)
+            {
+                if (!errors.ContainsKey("Code"))
+                {
+                    errors.Add("Code", "Code is unavailable");
+                }
+            }
+        }
+
+        private async Task CheckUpdateDuplicate(int id, StationInputDto inputDto)
+        {
+            List<Station> stations = await _context.Stations
+                .Where(station => station.Id != id)
+                .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                .Where(station => station.Code == inputDto.Code)
+                .ToListAsync();
+            foreach (Station station in stations)
+            {
+                if (!errors.ContainsKey("Code"))
+                {
+                    errors.Add("Code", "Code is unavailable");
+                }
+            }
+        }
+    }
+}
