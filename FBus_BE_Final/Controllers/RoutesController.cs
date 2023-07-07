@@ -2,6 +2,7 @@
 using FBus_BE.DTOs.InputDTOs;
 using FBus_BE.DTOs.ListingDTOs;
 using FBus_BE.DTOs.PageDTOs;
+using FBus_BE.Exceptions;
 using FBus_BE.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,9 +24,20 @@ namespace FBus_BE.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [Authorize("AdminOnly")]
         [HttpPatch("{id:int}")]
-        public Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
+        public async Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return Ok(await _routeService.ChangeStatus(id, status));
+            }
+            catch (EntityNotFoundException entityNotFoundException)
+            {
+                return BadRequest(entityNotFoundException.InforMessage);
+            }
+            catch (NotEnoughStationForRouteException notEnoughStationForRouteException)
+            {
+                return BadRequest(notEnoughStationForRouteException.InforMessage);
+            }
         }
 
         [NonAction]
@@ -46,9 +58,16 @@ namespace FBus_BE.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [Authorize("AdminOnly")]
         [HttpDelete("{id:int}")]
-        public Task<IActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return Ok(await _routeService.Delete(id));
+            }
+            catch (EntityNotFoundException entityNotFoundException)
+            {
+                return BadRequest(entityNotFoundException.InforMessage);
+            }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteDto))]
@@ -56,15 +75,22 @@ namespace FBus_BE.Controllers
         [HttpGet("{id:int}")]
         public Task<IActionResult> GetDetails([FromRoute] int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return Ok(await _routeService.GetDetails(id));
+            }
+            catch (EntityNotFoundException entityNotFoundException)
+            {
+                return BadRequest(entityNotFoundException.InforMessage);
+            }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultPageResponse<RouteListingDto>))]
         [Authorize("AdminOnly")]
         [HttpGet]
-        public Task<IActionResult> GetList([FromQuery] RoutePageRequest pageRequest)
+        public async Task<IActionResult> GetList([FromQuery] RoutePageRequest pageRequest)
         {
-            throw new NotImplementedException();
+            return Ok(await _routeService.GetList(pageRequest));
         }
 
         [NonAction]
@@ -76,9 +102,17 @@ namespace FBus_BE.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteDto))]
         [Authorize("AdminOnly")]
         [HttpPut("{id:int}")]
-        public Task<IActionResult> UpdateWithForm([FromRoute] int id, [FromForm] RouteInputDto inputDto)
+        public async Task<IActionResult> UpdateWithForm([FromRoute] int id, [FromForm] RouteInputDto inputDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int userId = Convert.ToInt32(User.FindFirst("Id").Value);
+                return Ok(await _routeService.Update(userId, inputDto, id));
+            }
+            catch (EntityNotFoundException entityNotFoundException)
+            {
+                return BadRequest(entityNotFoundException.InforMessage);
+            }
         }
     }
 }
