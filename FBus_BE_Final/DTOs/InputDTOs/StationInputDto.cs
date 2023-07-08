@@ -13,24 +13,24 @@ namespace FBus_BE.DTOs.InputDTOs
         [MinLength(3)]
         public string Name { get; set; }
         [Required]
-        [MaxLength(10)]
+        [MaxLength(20)]
         [MinLength(1)]
         public string AddressNumber { get; set; }
         [Required]
-        [MaxLength(50)]
-        [MinLength(5)]
+        [MaxLength(100)]
+        [MinLength(2)]
         public string Street { get; set; }
         [Required]
-        [MaxLength(50)]
+        [MaxLength(100)]
         [MinLength(5)]
         public string Ward { get; set; }
         [Required]
-        [MaxLength(50)]
-        [MinLength(5)]
+        [MaxLength(100)]
+        [MinLength(1)]
         public string District { get; set; }
         [Required]
-        [MaxLength(50)]
-        [MinLength(5)]
+        [MaxLength(100)]
+        [MinLength(4)]
         public string City { get; set; }
         public IFormFile? Image { get; set; }
         [Required]
