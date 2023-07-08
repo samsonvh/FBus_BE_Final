@@ -42,13 +42,13 @@ public partial class FbusMainContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07DCDA38C5");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC076E358B41");
 
             entity.ToTable("Account");
 
-            entity.HasIndex(e => e.Code, "UQ__Account__A25C5AA7BFCE4030").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Account__A25C5AA748EE5C8C").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Account__A9D10534B0C5BD85").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Account__A9D10534840648FF").IsUnique();
 
             entity.Property(e => e.Code)
                 .HasMaxLength(20)
@@ -66,13 +66,13 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<Bus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Bus__3214EC07A8C962B6");
+            entity.HasKey(e => e.Id).HasName("PK__Bus__3214EC07AFB43552");
 
             entity.ToTable("Bus");
 
-            entity.HasIndex(e => e.LicensePlate, "UQ__Bus__026BC15CE8B169EC").IsUnique();
+            entity.HasIndex(e => e.LicensePlate, "UQ__Bus__026BC15C23E16F13").IsUnique();
 
-            entity.HasIndex(e => e.Code, "UQ__Bus__A25C5AA73B51F87C").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Bus__A25C5AA7758E6F3F").IsUnique();
 
             entity.Property(e => e.Brand).HasMaxLength(20);
             entity.Property(e => e.Code)
@@ -90,12 +90,12 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.CreatedBy).WithMany(p => p.Buses)
                 .HasForeignKey(d => d.CreatedById)
-                .HasConstraintName("FK__Bus__CreatedById__4316F928");
+                .HasConstraintName("FK__Bus__CreatedById__6754599E");
         });
 
         modelBuilder.Entity<BusTrip>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__BusTrip__3214EC07EE2AFD54");
+            entity.HasKey(e => e.Id).HasName("PK__BusTrip__3214EC07165128DE");
 
             entity.ToTable("BusTrip");
 
@@ -109,12 +109,12 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.Coordination).WithMany(p => p.BusTrips)
                 .HasForeignKey(d => d.CoordinationId)
-                .HasConstraintName("FK__BusTrip__Coordin__5FB337D6");
+                .HasConstraintName("FK__BusTrip__Coordin__03F0984C");
         });
 
         modelBuilder.Entity<BusTripStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__BusTripS__3214EC0788AF272E");
+            entity.HasKey(e => e.Id).HasName("PK__BusTripS__3214EC0725500E5C");
 
             entity.ToTable("BusTripStatus");
 
@@ -125,16 +125,16 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.BusTrip).WithMany(p => p.BusTripStatuses)
                 .HasForeignKey(d => d.BusTripId)
-                .HasConstraintName("FK__BusTripSt__BusTr__6477ECF3");
+                .HasConstraintName("FK__BusTripSt__BusTr__08B54D69");
 
             entity.HasOne(d => d.Station).WithMany(p => p.BusTripStatuses)
                 .HasForeignKey(d => d.StationId)
-                .HasConstraintName("FK__BusTripSt__Stati__656C112C");
+                .HasConstraintName("FK__BusTripSt__Stati__09A971A2");
         });
 
         modelBuilder.Entity<Coordination>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Coordina__3214EC0700AAEB75");
+            entity.HasKey(e => e.Id).HasName("PK__Coordina__3214EC07739095D3");
 
             entity.ToTable("Coordination");
 
@@ -144,24 +144,24 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.Bus).WithMany(p => p.Coordinations)
                 .HasForeignKey(d => d.BusId)
-                .HasConstraintName("FK__Coordinat__BusId__571DF1D5");
+                .HasConstraintName("FK__Coordinat__BusId__7B5B524B");
 
             entity.HasOne(d => d.CreatedBy).WithMany(p => p.Coordinations)
                 .HasForeignKey(d => d.CreatedById)
-                .HasConstraintName("FK__Coordinat__Creat__5535A963");
+                .HasConstraintName("FK__Coordinat__Creat__797309D9");
 
             entity.HasOne(d => d.Driver).WithMany(p => p.Coordinations)
                 .HasForeignKey(d => d.DriverId)
-                .HasConstraintName("FK__Coordinat__Drive__5629CD9C");
+                .HasConstraintName("FK__Coordinat__Drive__7A672E12");
 
             entity.HasOne(d => d.Route).WithMany(p => p.Coordinations)
                 .HasForeignKey(d => d.RouteId)
-                .HasConstraintName("FK__Coordinat__Route__5812160E");
+                .HasConstraintName("FK__Coordinat__Route__7C4F7684");
         });
 
         modelBuilder.Entity<CoordinationStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Coordina__3214EC079406FA39");
+            entity.HasKey(e => e.Id).HasName("PK__Coordina__3214EC077B9D6A03");
 
             entity.ToTable("CoordinationStatus");
 
@@ -172,20 +172,18 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.Coordination).WithMany(p => p.CoordinationStatuses)
                 .HasForeignKey(d => d.CoordinationId)
-                .HasConstraintName("FK__Coordinat__Coord__5BE2A6F2");
+                .HasConstraintName("FK__Coordinat__Coord__00200768");
 
             entity.HasOne(d => d.CreatedBy).WithMany(p => p.CoordinationStatuses)
                 .HasForeignKey(d => d.CreatedById)
-                .HasConstraintName("FK__Coordinat__Creat__5AEE82B9");
+                .HasConstraintName("FK__Coordinat__Creat__7F2BE32F");
         });
 
         modelBuilder.Entity<Driver>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Driver__3214EC07E95C8353");
+            entity.HasKey(e => e.Id).HasName("PK__Driver__3214EC07C193FA76");
 
             entity.ToTable("Driver");
-
-            entity.HasIndex(e => e.PersonalEmail, "UQ__Driver__7B5B59A598A27D64").IsUnique();
 
             entity.Property(e => e.Address).HasMaxLength(100);
             entity.Property(e => e.Avatar)
@@ -208,16 +206,16 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.DriverAccounts)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__Driver__AccountI__3C69FB99");
+                .HasConstraintName("FK__Driver__AccountI__60A75C0F");
 
             entity.HasOne(d => d.CreatedBy).WithMany(p => p.DriverCreatedBies)
                 .HasForeignKey(d => d.CreatedById)
-                .HasConstraintName("FK__Driver__CreatedB__3D5E1FD2");
+                .HasConstraintName("FK__Driver__CreatedB__619B8048");
         });
 
         modelBuilder.Entity<Route>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Route__3214EC07E65E7C3D");
+            entity.HasKey(e => e.Id).HasName("PK__Route__3214EC070BABD3D1");
 
             entity.ToTable("Route");
 
@@ -229,12 +227,12 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.CreatedBy).WithMany(p => p.Routes)
                 .HasForeignKey(d => d.CreatedById)
-                .HasConstraintName("FK__Route__CreatedBy__46E78A0C");
+                .HasConstraintName("FK__Route__CreatedBy__6B24EA82");
         });
 
         modelBuilder.Entity<RouteStation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__RouteSta__3214EC073A948538");
+            entity.HasKey(e => e.Id).HasName("PK__RouteSta__3214EC07FF3E1B5F");
 
             entity.ToTable("RouteStation");
 
@@ -242,20 +240,20 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.Route).WithMany(p => p.RouteStations)
                 .HasForeignKey(d => d.RouteId)
-                .HasConstraintName("FK__RouteStat__Route__5070F446");
+                .HasConstraintName("FK__RouteStat__Route__74AE54BC");
 
             entity.HasOne(d => d.Station).WithMany(p => p.RouteStations)
                 .HasForeignKey(d => d.StationId)
-                .HasConstraintName("FK__RouteStat__Stati__5165187F");
+                .HasConstraintName("FK__RouteStat__Stati__75A278F5");
         });
 
         modelBuilder.Entity<Station>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Station__3214EC074E6D16AE");
+            entity.HasKey(e => e.Id).HasName("PK__Station__3214EC076A334D49");
 
             entity.ToTable("Station");
 
-            entity.HasIndex(e => e.Code, "UQ__Station__A25C5AA788C27F4B").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Station__A25C5AA74EC4837D").IsUnique();
 
             entity.Property(e => e.AddressNumber)
                 .HasMaxLength(10)
@@ -277,7 +275,7 @@ public partial class FbusMainContext : DbContext
 
             entity.HasOne(d => d.CreatedBy).WithMany(p => p.Stations)
                 .HasForeignKey(d => d.CreatedById)
-                .HasConstraintName("FK__Station__Created__4CA06362");
+                .HasConstraintName("FK__Station__Created__70DDC3D8");
         });
 
         OnModelCreatingPartial(modelBuilder);
