@@ -256,22 +256,22 @@ public partial class FbusMainContext : DbContext
             entity.HasIndex(e => e.Code, "UQ__Station__A25C5AA74EC4837D").IsUnique();
 
             entity.Property(e => e.AddressNumber)
-                .HasMaxLength(10)
+                .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.City).HasMaxLength(50);
+            entity.Property(e => e.City).HasMaxLength(100);
             entity.Property(e => e.Code)
                 .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.District).HasMaxLength(50);
+            entity.Property(e => e.District).HasMaxLength(100);
             entity.Property(e => e.Image)
                 .HasMaxLength(300)
                 .IsUnicode(false);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Street).HasMaxLength(50);
-            entity.Property(e => e.Ward).HasMaxLength(50);
+            entity.Property(e => e.Street).HasMaxLength(100);
+            entity.Property(e => e.Ward).HasMaxLength(100);
 
             entity.HasOne(d => d.CreatedBy).WithMany(p => p.Stations)
                 .HasForeignKey(d => d.CreatedById)
