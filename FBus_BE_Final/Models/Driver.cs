@@ -33,11 +33,7 @@ public partial class Driver
 
     public virtual Account? Account { get; set; }
 
-    public virtual ICollection<Coordination> CoordinationBus { get; set; } = new List<Coordination>();
-
-    public virtual ICollection<Coordination> CoordinationDrivers { get; set; } = new List<Coordination>();
-
-    public virtual ICollection<Coordination> CoordinationRoutes { get; set; } = new List<Coordination>();
+    public virtual ICollection<Coordination> Coordinations { get; set; } = new List<Coordination>();
 
     public virtual Account? CreatedBy { get; set; }
 }

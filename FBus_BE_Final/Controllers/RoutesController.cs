@@ -73,7 +73,7 @@ namespace FBus_BE.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteDto))]
         [Authorize("AdminOnly")]
         [HttpGet("{id:int}")]
-        public Task<IActionResult> GetDetails([FromRoute] int id)
+        public async Task<IActionResult> GetDetails([FromRoute] int id)
         {
             try
             {
