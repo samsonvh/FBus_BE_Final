@@ -28,7 +28,6 @@ namespace FBus_BE.DTOs.InputDTOs
         public string Address { get; set; }
         [Required]
         [MaxLength(13)]
-        [MinLength(10)]
         [RegularExpression("^[+]\\d{2} \\d{6,9}", ErrorMessage = "PhoneNumber must follow format. For example: +84 987654321")]
         public string PhoneNumber { get; set; }
         [MaxLength(100)]
