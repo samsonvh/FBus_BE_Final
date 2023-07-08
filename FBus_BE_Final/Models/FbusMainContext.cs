@@ -36,7 +36,7 @@ public partial class FbusMainContext : DbContext
     public virtual DbSet<Station> Stations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=FBus_Local:ConnectionString");
+        => optionsBuilder.UseSqlServer("Name=FBus_Main:ConnectionString");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
