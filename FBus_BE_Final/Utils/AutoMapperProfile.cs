@@ -44,7 +44,8 @@ namespace FBus_BE.Utils
                 .ForMember(stationDto => stationDto.Status, options => options.MapFrom(station => MapStationStatus(station.Status)));
             CreateMap<Station, StationListingDto>()
                 .ForMember(stationDto => stationDto.Status, options => options.MapFrom(station => MapStationStatus(station.Status)));
-            CreateMap<StationInputDto, Station>();
+            CreateMap<StationInputDto, Station>()
+                .ForMember(station => station.Image, options => options.Ignore());
 
             //  Route
             CreateMap<Route, RouteDto>()
@@ -54,6 +55,19 @@ namespace FBus_BE.Utils
 
             //  RouteStation
             CreateMap<RouteStation, RouteStationDto>();
+
+            //  Coordination
+            CreateMap<Coordination, CoordinationDto>()
+                .ForMember(coorDto => coorDto.CreatedByCode, options => options.MapFrom(coor => coor.CreatedBy.Code))
+                .ForMember(coorDto => coorDto.Status, options => options.MapFrom(coor => MapCoordinationStatus(coor.Status)));
+            CreateMap<Coordination, CoordinationListingDto>()
+                .ForMember(coorDto => coorDto.BusCode, options => options.MapFrom(coor => coor.Bus.Code))
+                .ForMember(coorDto => coorDto.LicensePlate, options => options.MapFrom(coor => coor.Bus.LicensePlate))
+                .ForMember(coorDto => coorDto.DriverCode, options => options.MapFrom(coor => coor.Driver.Account.Code))
+                .ForMember(coorDto => coorDto.Beginning, options => options.MapFrom(coor => coor.Route.Beginning))
+                .ForMember(coorDto => coorDto.Destination, options => options.MapFrom(coor => coor.Route.Destination))
+                .ForMember(coorDto => coorDto.Status, options => options.MapFrom(coor => MapCoordinationStatus(coor.Status)));
+            CreateMap<CoordinationInputDto, Coordination>();
         }
 
         private static string MapAccountStatus(byte status)
@@ -132,6 +146,23 @@ namespace FBus_BE.Utils
                     return "ACTIVE";
                 case (int)RouteStatusEnum.Inactive:
                     return "INACTIVE";
+                default:
+                    return "DELETED";
+            }
+        }
+
+        private static string MapCoordinationStatus(byte status)
+        {
+            switch (status)
+            {
+                case (int)CoordinationStatusEnum.Active:
+                    return "ACTIVE";
+                case (int)CoordinationStatusEnum.Inactive:
+                    return "INACTIVE";
+                case (int)CoordinationStatusEnum.OnGoing:
+                    return "ONGOING";
+                case (int)CoordinationStatusEnum.Finished:
+                    return "FINISHED";
                 default:
                     return "DELETED";
             }

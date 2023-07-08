@@ -19,8 +19,10 @@ namespace FBus_BE.Services.Implements
         private readonly FbusMainContext _context;
         private readonly IMapper _mapper;
         private readonly Dictionary<string, Expression<Func<Station, object>>> _orderDict;
+        private readonly IFirebaseStorageService _storageService;
+        private const string cloudStoragePrefix = @"https://firebasestorage.googleapis.com/v0/b/fbus-388009.appspot.com/o/";
 
-        public StationService(FbusMainContext context, IMapper mapper)
+        public StationService(FbusMainContext context, IMapper mapper, IFirebaseStorageService storageService)
         {
             errors = new Dictionary<string, string>();
             _context = context;
@@ -28,6 +30,7 @@ namespace FBus_BE.Services.Implements
             _orderDict = new Dictionary<string, Expression<Func<Station, object>>> {
                 { "id", station => station.Id }
             };
+            _storageService = storageService;
         }
 
         public async Task<bool> ChangeStatus(int id, string status)
@@ -74,6 +77,12 @@ namespace FBus_BE.Services.Implements
                 Station station = _mapper.Map<Station>(inputDto);
                 station.CreatedById = (short?)createdById;
                 station.Status = (byte)StationStatusEnum.Active;
+                if (inputDto.Image != null)
+                {
+                    Uri uri = await _storageService.UploadFile(inputDto.Code, inputDto.Image, "stations");
+                    station.Image = cloudStoragePrefix + uri.AbsolutePath.Substring(uri.AbsolutePath.LastIndexOf('/') + 1) + "?alt=media";
+                }
+
                 _context.Stations.Add(station);
                 await _context.SaveChangesAsync();
                 return _mapper.Map<StationDto>(station);
@@ -152,7 +161,7 @@ namespace FBus_BE.Services.Implements
                                              .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
                                              .Select(station => _mapper.Map<StationListingDto>(station))
                                              .ToListAsync()
-                    : await _context.Stations.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
+                    : await _context.Stations.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
                                              .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
                                              .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
@@ -179,6 +188,16 @@ namespace FBus_BE.Services.Implements
             if (errors.IsNullOrEmpty())
             {
                 station = _mapper.Map(inputDto, station);
+                if (inputDto.Image != null)
+                {
+                    if (station.Image != null)
+                    {
+                        string fileName = station.Image.Substring(station.Image.LastIndexOf('/') + 1).Replace("?alt=media", "").Replace("%2F", "");
+                        await _storageService.DeleteFile(fileName);
+                    }
+                    Uri uri = await _storageService.UploadFile(inputDto.Code, inputDto.Image, "stations");
+                    station.Image = cloudStoragePrefix + uri.AbsolutePath.Substring(uri.AbsolutePath.LastIndexOf('/') + 1) + "?alt=media";
+                }
                 _context.Stations.Update(station);
                 await _context.SaveChangesAsync();
                 return _mapper.Map<StationDto>(station);

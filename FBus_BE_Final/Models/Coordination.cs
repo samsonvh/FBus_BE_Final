@@ -23,7 +23,7 @@ public partial class Coordination
 
     public byte Status { get; set; }
 
-    public virtual Driver? Bus { get; set; }
+    public virtual Bus? Bus { get; set; }
 
     public virtual ICollection<BusTrip> BusTrips { get; set; } = new List<BusTrip>();
 
@@ -33,5 +33,5 @@ public partial class Coordination
 
     public virtual Driver? Driver { get; set; }
 
-    public virtual Driver? Route { get; set; }
+    public virtual Route? Route { get; set; }
 }

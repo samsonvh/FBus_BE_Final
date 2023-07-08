@@ -74,6 +74,7 @@ namespace FBus_BE.Services.Implements
             {
                 Bus bus = _mapper.Map<Bus>(inputDto);
                 bus.CreatedById = (short?)createdById;
+                bus.Status = (byte)BusStatusEnum.Active;
                 _context.Buses.Add(bus);
                 await _context.SaveChangesAsync();
 
@@ -163,7 +164,7 @@ namespace FBus_BE.Services.Implements
                                                                : true)
                                           .Select(bus => _mapper.Map<BusListingDto>(bus))
                                           .ToListAsync()
-                    : await _context.Buses.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
+                    : await _context.Buses.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                           .Skip(skippedCount)
                                           .Where(bus => !bus.Status.Equals((byte)BusStatusEnum.Deleted))
                                           .Where(bus => (pageRequest.Code != null && pageRequest.LicensePlate != null)
