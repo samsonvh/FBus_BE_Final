@@ -36,7 +36,7 @@ namespace FBus_BE.Services.Implements
         public async Task<bool> ChangeStatus(int id, string status)
         {
             Station? station = await _context.Stations.FirstOrDefaultAsync(station => station.Id == id);
-            if (station == null)
+            if (station != null)
             {
                 if (station.Status != (byte)StationStatusEnum.Deleted)
                 {
