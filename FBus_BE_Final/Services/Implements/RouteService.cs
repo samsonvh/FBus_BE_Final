@@ -8,6 +8,7 @@ using FBus_BE.Exceptions;
 using FBus_BE.Models;
 using FBus_BE.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
 using static System.Collections.Specialized.BitVector32;
 using Route = FBus_BE.Models.Route;
@@ -35,7 +36,7 @@ namespace FBus_BE.Services.Implements
         public async Task<bool> ChangeStatus(int id, string status)
         {
             Route? route = await _context.Routes.FirstOrDefaultAsync(route => route.Id == id);
-            if (route == null)
+            if (route != null)
             {
                 if (route.Status != (byte)RouteStatusEnum.Deleted)
                 {
@@ -85,7 +86,7 @@ namespace FBus_BE.Services.Implements
             await _context.SaveChangesAsync();
             RouteDto routeDto = _mapper.Map<RouteDto>(route);
             
-            if (inputDto.StationIds != null)
+            if (!inputDto.StationIds.IsNullOrEmpty())
             {
                 for (int i = 1; i <= inputDto.StationIds.Count; i++)
                 {
@@ -113,6 +114,7 @@ namespace FBus_BE.Services.Implements
                 if (stations.Count >= 2)
                 {
                     route.Status = (byte)RouteStatusEnum.Active;
+                    routeDto.Status = "ACTIVE";
                     _context.Routes.Update(route);
                     await _context.SaveChangesAsync();
                 }
@@ -250,18 +252,18 @@ namespace FBus_BE.Services.Implements
                 RouteDto routeDto = _mapper.Map<RouteDto>(route);
 
                 _context.RouteStations.RemoveRange(route.RouteStations);
-                for (int i = 1; i <= inputDto.StationIds.Count; i++)
+                if (!inputDto.StationIds.IsNullOrEmpty())
                 {
-                    RouteStation routeStation = new RouteStation
+                    for (int i = 1; i <= inputDto.StationIds.Count; i++)
                     {
-                        RouteId = route.Id,
-                        StationId = (short?)inputDto.StationIds[i - 1],
-                        StationOrder = (byte)i
-                    };
-                    _context.RouteStations.Add(routeStation);
-                }
-                if (inputDto.StationIds != null)
-                {
+                        RouteStation routeStation = new RouteStation
+                        {
+                            RouteId = route.Id,
+                            StationId = (short?)inputDto.StationIds[i - 1],
+                            StationOrder = (byte)i
+                        };
+                        _context.RouteStations.Add(routeStation);
+                    }
                     await _context.SaveChangesAsync();
                     List<RouteStationDto> stations = await _context.RouteStations
                         .Include(routeStation => routeStation.Station)
@@ -278,6 +280,7 @@ namespace FBus_BE.Services.Implements
                     if (stations.Count >= 2)
                     {
                         route.Status = (byte)RouteStatusEnum.Active;
+                        routeDto.Status = "ACTIVE";
                         _context.Routes.Update(route);
                         await _context.SaveChangesAsync();
                     }
