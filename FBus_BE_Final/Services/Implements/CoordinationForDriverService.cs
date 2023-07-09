@@ -69,8 +69,9 @@ namespace FBus_BE.Services.Implements
             }
         }
 
-        public async Task<DefaultPageResponse<CoordinationListingDto>> GetList(int driverId, CoordinationPageRequest pageRequest)
+        public async Task<DefaultPageResponse<CoordinationListingDto>> GetList(int userId, CoordinationPageRequest pageRequest)
         {
+            int driverId = await _context.Drivers.Where(driver => driver.AccountId == userId).Select(driver => driver.Id).FirstOrDefaultAsync();
             DefaultPageResponse<CoordinationListingDto> pageResponse = new DefaultPageResponse<CoordinationListingDto>();
             if (pageRequest.PageIndex == null)
             {

@@ -146,6 +146,7 @@ namespace FBus_BE.Services.Implements
                 {
                     coordination.Status = (byte)CoordinationStatusEnum.Deleted;
                     CoordinationStatus latestStatus = await _context.CoordinationStatuses
+                        .OrderBy(coorStatus => coorStatus.CreatedDate)
                         .LastOrDefaultAsync(coordinationStatus => coordinationStatus.CoordinationId == id);
                     CoordinationStatus coordinationStatus = new CoordinationStatus
                     {
