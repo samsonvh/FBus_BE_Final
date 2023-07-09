@@ -57,6 +57,7 @@ builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IBusService, BusService>();
 builder.Services.AddScoped<IStationService, StationService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
+builder.Services.AddScoped<IRouteForMapScreenService, RouteForMapScreenService>();
 builder.Services.AddScoped<ICoordinationService, CoordinationService>();
 builder.Services.AddScoped<ICoordinationForDriverService, CoordinationForDriverService>();
 

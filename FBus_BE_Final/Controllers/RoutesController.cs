@@ -15,10 +15,12 @@ namespace FBus_BE.Controllers
     public class RoutesController : ControllerBase, IDefaultController<RoutePageRequest, RouteInputDto>
     {
         private readonly IRouteService _routeService;
+        private readonly IRouteForMapScreenService _routeForMapScreenService;
 
-        public RoutesController(IRouteService routeService)
+        public RoutesController(IRouteService routeService, IRouteForMapScreenService routeForMapScreenService)
         {
             _routeService = routeService;
+            _routeForMapScreenService = routeForMapScreenService;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
@@ -71,13 +73,20 @@ namespace FBus_BE.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteDto))]
-        [Authorize("AdminOnly")]
+        //[Authorize("AdminOnly")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetDetails([FromRoute] int id)
         {
             try
             {
-                return Ok(await _routeService.GetDetails(id));
+                if(User != null)
+                {
+                    return Ok(await _routeService.GetDetails(id));
+                }
+                else
+                {
+                    return Ok(await _routeForMapScreenService.GetDetails(id));
+                }
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
@@ -86,7 +95,7 @@ namespace FBus_BE.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultPageResponse<RouteListingDto>))]
-        [Authorize("AdminOnly")]
+        //[Authorize("AdminOnly")]
         [HttpGet]
         public async Task<IActionResult> GetList([FromQuery] RoutePageRequest pageRequest)
         {
