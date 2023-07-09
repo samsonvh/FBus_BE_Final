@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FBus_BE.DTOs;
 using FBus_BE.DTOs.InputDTOs;
 using FBus_BE.DTOs.ListingDTOs;
@@ -45,11 +45,12 @@ namespace FBus_BE.Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<CoordinationDto> GetDetails(int id, int driverId)
+        public async Task<CoordinationDto> GetDetails(int id, int userId)
         {
+            int driverId = await _context.Drivers.Where(driver => driver.AccountId == userId).Select(driver => driver.Id).FirstOrDefaultAsync();
             Coordination? coordination = await _context.Coordinations
                 .Include(coor => coor.CreatedBy)
-                .Include(coor => coor.Bus)
+                .Include(coor => coor.Bus).ThenInclude(bus => bus.CreatedBy)
                 .Include(coor => coor.Route).ThenInclude(route => route.CreatedBy)
                 .FirstOrDefaultAsync(coor => coor.Id == id);
             if (coordination != null)
