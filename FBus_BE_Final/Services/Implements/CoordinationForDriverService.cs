@@ -50,7 +50,7 @@ namespace FBus_BE.Services.Implements
             Coordination? coordination = await _context.Coordinations
                 .Include(coor => coor.CreatedBy)
                 .Include(coor => coor.Bus)
-                .Include(coor => coor.Route)
+                .Include(coor => coor.Route).ThenInclude(route => route.CreatedBy)
                 .FirstOrDefaultAsync(coor => coor.Id == id);
             if (coordination != null)
             {
@@ -96,11 +96,17 @@ namespace FBus_BE.Services.Implements
                 pageRequest.Direction = "desc";
                 coordinations = pageRequest.Direction == "desc"
                     ? await _context.Coordinations.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
+                                                  .Include(coor => coor.Bus)
+                                                  .Include(coor => coor.Driver).ThenInclude(route => route.Account)
+                                                  .Include(coor => coor.Route)
                                                   .Where(coor => coor.Status != (byte)CoordinationStatusEnum.Deleted)
                                                   .Where(coor => coor.DriverId == driverId)
                                                   .Select(coor => _mapper.Map<CoordinationListingDto>(coor))
                                                   .ToListAsync()
                     : await _context.Coordinations.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
+                                                  .Include(coor => coor.Bus)
+                                                  .Include(coor => coor.Driver).ThenInclude(route => route.Account)
+                                                  .Include(coor => coor.Route)
                                                   .Where(coor => coor.Status != (byte)CoordinationStatusEnum.Deleted)
                                                   .Where(coor => coor.DriverId == driverId)
                                                   .Select(coor => _mapper.Map<CoordinationListingDto>(coor))
