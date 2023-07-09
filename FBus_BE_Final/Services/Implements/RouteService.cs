@@ -84,19 +84,19 @@ namespace FBus_BE.Services.Implements
             _context.Routes.Add(route);
             await _context.SaveChangesAsync();
             RouteDto routeDto = _mapper.Map<RouteDto>(route);
-
-            for (int i = 1; i <= inputDto.StationIds.Count; i++)
-            {
-                RouteStation routeStation = new RouteStation
-                {
-                    RouteId = route.Id,
-                    StationId = (short?)inputDto.StationIds[i - 1],
-                    StationOrder = (byte)i
-                };
-                _context.RouteStations.Add(routeStation);
-            }
+            
             if (inputDto.StationIds != null)
             {
+                for (int i = 1; i <= inputDto.StationIds.Count; i++)
+                {
+                    RouteStation routeStation = new RouteStation
+                    {
+                        RouteId = route.Id,
+                        StationId = (short?)inputDto.StationIds[i - 1],
+                        StationOrder = (byte)i
+                    };
+                    _context.RouteStations.Add(routeStation);
+                }
                 await _context.SaveChangesAsync();
                 List<RouteStationDto> stations = await _context.RouteStations
                     .Include(routeStation => routeStation.Station)

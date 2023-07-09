@@ -24,7 +24,9 @@ namespace FBus_BE.Controllers
             _coordinationForDriverService = coordinationForDriverService;
         }
 
-        [NonAction]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [Authorize("AdminOnly")]
+        [HttpPatch("{id:int}")]
         public Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
         {
             throw new NotImplementedException();
