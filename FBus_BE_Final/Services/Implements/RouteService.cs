@@ -10,7 +10,6 @@ using FBus_BE.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
-using static System.Collections.Specialized.BitVector32;
 using Route = FBus_BE.Models.Route;
 
 namespace FBus_BE.Services.Implements
