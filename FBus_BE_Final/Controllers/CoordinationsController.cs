@@ -48,11 +48,11 @@ namespace FBus_BE.Controllers
             }
             catch (OccupiedException occupiedException)
             {
-                return BadRequest(occupiedException.Errors);
+                return BadRequest(new ErrorDto { Title="Occupied", Errors= occupiedException.Errors });
             }
             catch (CoordinationDateInvalidException coordinationDateInvalidException)
             {
-                return BadRequest(coordinationDateInvalidException.Errors);
+                return BadRequest(new ErrorDto { Title = "Coordination Date Invalid", Errors = coordinationDateInvalidException.Errors });
             }
         }
 
@@ -67,7 +67,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(entityNotFoundException.InforMessage);
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
             }
         }
 
@@ -92,7 +92,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(entityNotFoundException.InforMessage);
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
             }
         }
 
@@ -132,11 +132,11 @@ namespace FBus_BE.Controllers
             }
             catch (OccupiedException occupiedException)
             {
-                return BadRequest(occupiedException.Errors);
+                return BadRequest(new ErrorDto { Title = "Occupied", Errors = occupiedException.Errors });
             }
             catch (CoordinationDateInvalidException coordinationDateInvalidException)
             {
-                return BadRequest(coordinationDateInvalidException.Errors);
+                return BadRequest(new ErrorDto { Title = "Coordination Date Invalid", Errors = coordinationDateInvalidException.Errors });
             }
         }
     }

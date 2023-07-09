@@ -32,11 +32,11 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(entityNotFoundException.InforMessage);
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
             }
             catch (NotEnoughStationForRouteException notEnoughStationForRouteException)
             {
-                return BadRequest(notEnoughStationForRouteException.InforMessage);
+                return BadRequest(new ErrorDto { Title = "Not Enough Station For Route", Errors = notEnoughStationForRouteException.InforMessage });
             }
         }
 
@@ -66,7 +66,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(entityNotFoundException.InforMessage);
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
             }
         }
 
@@ -81,7 +81,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(entityNotFoundException.InforMessage);
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
             }
         }
 
@@ -111,7 +111,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(entityNotFoundException.InforMessage);
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
             }
         }
     }

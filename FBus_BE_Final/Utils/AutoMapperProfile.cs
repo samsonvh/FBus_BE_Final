@@ -51,6 +51,8 @@ namespace FBus_BE.Utils
             CreateMap<Route, RouteDto>()
                 .ForMember(routeDto => routeDto.CreatedByCode, options => options.MapFrom(route => route.CreatedBy.Code))
                 .ForMember(routeDto => routeDto.Status, options => options.MapFrom(route => MapRouteStatus(route.Status)));
+            CreateMap<Route, RouteListingDto>()
+                .ForMember(routeDto => routeDto.Status, options => options.MapFrom(route => MapRouteStatus(route.Status)));
             CreateMap<RouteInputDto, Route>();
 
             //  RouteStation
