@@ -79,7 +79,7 @@ namespace FBus_BE.Controllers
         {
             try
             {
-                if(User != null)
+                if (User.FindFirst("Role") != null)
                 {
                     return Ok(await _routeService.GetDetails(id));
                 }
@@ -99,7 +99,7 @@ namespace FBus_BE.Controllers
         [HttpGet]
         public async Task<IActionResult> GetList([FromQuery] RoutePageRequest pageRequest)
         {
-            if (User != null)
+            if (User.FindFirst("Role") != null)
             {
                 return Ok(await _routeService.GetList(pageRequest));
             }
