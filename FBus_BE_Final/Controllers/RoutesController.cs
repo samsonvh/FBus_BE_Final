@@ -99,7 +99,14 @@ namespace FBus_BE.Controllers
         [HttpGet]
         public async Task<IActionResult> GetList([FromQuery] RoutePageRequest pageRequest)
         {
-            return Ok(await _routeService.GetList(pageRequest));
+            if (User != null)
+            {
+                return Ok(await _routeService.GetList(pageRequest));
+            }
+            else
+            {
+                return Ok(await _routeForMapScreenService.GetList(pageRequest));
+            }
         }
 
         [NonAction]
