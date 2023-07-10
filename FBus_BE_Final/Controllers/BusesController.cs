@@ -16,10 +16,12 @@ namespace FBus_BE.Controllers
     public class BusesController : ControllerBase, IDefaultController<BusPageRequest, BusInputDto>
     {
         private readonly IBusService _busService;
+        private readonly IBusForMapService _busForMapService;
 
-        public BusesController(IBusService busService)
+        public BusesController(IBusService busService, IBusForMapService busForMapService)
         {
             _busService = busService;
+            _busForMapService = busForMapService;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
@@ -78,13 +80,18 @@ namespace FBus_BE.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BusDto))]
-        [Authorize("AdminOnly")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetDetails([FromRoute] int id)
         {
             try
             {
-                return Ok(await _busService.GetDetails(id));
+                if (User.FindFirst("Role") != null)
+                {
+                    return Ok(await _busService.GetDetails(id));
+                } else
+                {
+                    return Ok(await _busForMapService.GetDetails(id));
+                }
             } catch (EntityNotFoundException entityNotFoundException)
             {
                 return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
