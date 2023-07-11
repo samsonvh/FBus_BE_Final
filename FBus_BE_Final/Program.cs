@@ -55,6 +55,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IBusService, BusService>();
+builder.Services.AddScoped<IBusForMapService, BusForMapService>();
 builder.Services.AddScoped<IStationService, StationService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRouteForMapScreenService, RouteForMapScreenService>();
