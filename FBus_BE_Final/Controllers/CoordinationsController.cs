@@ -27,9 +27,15 @@ namespace FBus_BE.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [Authorize("AdminOnly")]
         [HttpPatch("{id:int}")]
-        public Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
+        public async Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return Ok(await _coordinationService.ChangeStatus(id, status));
+            } catch ( EntityNotFoundException entityNotFoundException)
+            {
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+            }
         }
 
         [NonAction]
