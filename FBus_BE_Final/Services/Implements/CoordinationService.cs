@@ -289,7 +289,7 @@ namespace FBus_BE.Services.Implements
                     _context.Coordinations.Update(coordination);
                     await _context.SaveChangesAsync();
 
-                    CoordinationStatus latestStatus = await _context.CoordinationStatuses.LastOrDefaultAsync(coordinationStatus => coordinationStatus.CoordinationId == id);
+                    CoordinationStatus latestStatus = await _context.CoordinationStatuses.OrderBy(coorStatus => coorStatus.Id).LastOrDefaultAsync(coordinationStatus => coordinationStatus.CoordinationId == id);
                     CoordinationStatus coordinationStatus = new CoordinationStatus
                     {
                         CoordinationId = coordination.Id,
