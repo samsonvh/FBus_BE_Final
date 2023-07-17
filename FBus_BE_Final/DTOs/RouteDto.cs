@@ -8,7 +8,7 @@
         public string Beginning { get; set; }
         public string Destination { get; set; }
         public short Distance { get; set; }
-        public List<RouteStationDto> Stations { get; set; }
+        public List<RouteStationDto> RouteStations { get; set; }
         public DateTime CreatedDate { get; set; }
         public string Status { get; set; }
     }

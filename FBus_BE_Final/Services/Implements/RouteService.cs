@@ -117,7 +117,7 @@ namespace FBus_BE.Services.Implements
                     _context.Routes.Update(route);
                     await _context.SaveChangesAsync();
                 }
-                routeDto.Stations = stations;
+                routeDto.RouteStations = stations;
             }
             return routeDto;
         }
@@ -165,7 +165,7 @@ namespace FBus_BE.Services.Implements
                 }))
                 .ToListAsync();
                 RouteDto routeDto = _mapper.Map<RouteDto>(route);
-                routeDto.Stations = stations;
+                routeDto.RouteStations = stations;
                 return routeDto;
             }
             else
@@ -283,7 +283,7 @@ namespace FBus_BE.Services.Implements
                         _context.Routes.Update(route);
                         await _context.SaveChangesAsync();
                     }
-                    routeDto.Stations = stations;
+                    routeDto.RouteStations = stations;
                 }
                 return routeDto;
             } else
