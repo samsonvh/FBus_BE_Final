@@ -80,7 +80,7 @@ namespace FBus_BE.Services.Implements
                                         new Claim("Id", account.Id.ToString()), 
                                         new Claim("Role", account.Role) 
                                     }, null, 
-                                    DateTime.Now.AddMinutes(30), signingCredentials);
+                                    DateTime.Now.AddSeconds(15), signingCredentials);
                                 string token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
                                 return new AuthResponse()
                                 {
