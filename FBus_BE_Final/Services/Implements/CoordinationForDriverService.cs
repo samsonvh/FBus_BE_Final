@@ -52,6 +52,7 @@ namespace FBus_BE.Services.Implements
                 .Include(coor => coor.CreatedBy)
                 .Include(coor => coor.Bus).ThenInclude(bus => bus.CreatedBy)
                 .Include(coor => coor.Route).ThenInclude(route => route.CreatedBy)
+                .Include(coor => coor.Route).ThenInclude(route => route.RouteStations)
                 .FirstOrDefaultAsync(coor => coor.Id == id);
             if (coordination != null)
             {
