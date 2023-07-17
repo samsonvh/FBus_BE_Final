@@ -51,14 +51,17 @@ namespace FBus_BE.Services.Implements
             Coordination? coordination = await _context.Coordinations
                 .Include(coor => coor.CreatedBy)
                 .Include(coor => coor.Bus).ThenInclude(bus => bus.CreatedBy)
-                .Include(coor => coor.Route).ThenInclude(route => route.CreatedBy)
-                .Include(coor => coor.Route).ThenInclude(route => route.RouteStations)
+                .Include(coor => coor.Route).ThenInclude(route => route.RouteStations).ThenInclude(routeStations => routeStations.Station)
                 .Where(coor => coor.Status != (byte)CoordinationStatusEnum.Deleted)
                 .FirstOrDefaultAsync(coor => coor.Id == id);
             if (coordination != null)
             {
                 if (coordination.DriverId == driverId)
-                {
+                {   
+                    foreach(RouteStation routeStation in coordination.Route.RouteStations)
+                    {
+                        routeStation.Route = null;
+                    }
                     return _mapper.Map<CoordinationDto>(coordination);
                 }
                 else
