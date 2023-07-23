@@ -1,6 +1,6 @@
 ﻿namespace FBus_BE.Enums
 {
-    public enum CoordinationStatusEnum
+    public enum TripStatusEnum
     {
         Inactive,
         Active,

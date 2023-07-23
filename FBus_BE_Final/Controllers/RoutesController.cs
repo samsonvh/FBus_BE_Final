@@ -34,11 +34,11 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
             catch (NotEnoughStationForRouteException notEnoughStationForRouteException)
             {
-                return BadRequest(new ErrorDto { Title = "Not Enough Station For Route", Errors = notEnoughStationForRouteException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Not Enough Station For Route", Errors = new Dictionary<string, string>() { { "message", notEnoughStationForRouteException.InforMessage } } });
             }
         }
 
@@ -68,7 +68,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
 
@@ -90,7 +90,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
 
@@ -127,7 +127,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
     }

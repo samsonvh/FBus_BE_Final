@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace FBus_BE.Models;
 
-public partial class Coordination
+public partial class Trip
 {
     public short Id { get; set; }
 
@@ -19,19 +19,17 @@ public partial class Coordination
 
     public DateTime DateLine { get; set; }
 
-    public DateTime DueDate { get; set; }
+    public DateTime CreatedDate { get; set; }
 
     public byte Status { get; set; }
 
     public virtual Bus? Bus { get; set; }
-
-    public virtual ICollection<BusTrip> BusTrips { get; set; } = new List<BusTrip>();
-
-    public virtual ICollection<CoordinationStatus> CoordinationStatuses { get; set; } = new List<CoordinationStatus>();
 
     public virtual Account? CreatedBy { get; set; }
 
     public virtual Driver? Driver { get; set; }
 
     public virtual Route? Route { get; set; }
+
+    public virtual ICollection<TripStatus> TripStatuses { get; set; } = new List<TripStatus>();
 }

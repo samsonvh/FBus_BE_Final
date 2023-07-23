@@ -19,10 +19,6 @@ public partial class Account
 
     public virtual ICollection<Bus> Buses { get; set; } = new List<Bus>();
 
-    public virtual ICollection<CoordinationStatus> CoordinationStatuses { get; set; } = new List<CoordinationStatus>();
-
-    public virtual ICollection<Coordination> Coordinations { get; set; } = new List<Coordination>();
-
     public virtual ICollection<Driver> DriverAccounts { get; set; } = new List<Driver>();
 
     public virtual ICollection<Driver> DriverCreatedBies { get; set; } = new List<Driver>();
@@ -30,4 +26,8 @@ public partial class Account
     public virtual ICollection<Route> Routes { get; set; } = new List<Route>();
 
     public virtual ICollection<Station> Stations { get; set; } = new List<Station>();
+
+    public virtual ICollection<TripStatus> TripStatuses { get; set; } = new List<TripStatus>();
+
+    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }
