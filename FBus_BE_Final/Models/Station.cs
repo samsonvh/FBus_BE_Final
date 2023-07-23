@@ -33,9 +33,9 @@ public partial class Station
 
     public byte Status { get; set; }
 
-    public virtual ICollection<BusTripStatus> BusTripStatuses { get; set; } = new List<BusTripStatus>();
-
     public virtual Account? CreatedBy { get; set; }
 
     public virtual ICollection<RouteStation> RouteStations { get; set; } = new List<RouteStation>();
+
+    public virtual ICollection<TripStatus> TripStatuses { get; set; } = new List<TripStatus>();
 }

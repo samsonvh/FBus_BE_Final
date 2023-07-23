@@ -59,8 +59,8 @@ builder.Services.AddScoped<IBusForMapService, BusForMapService>();
 builder.Services.AddScoped<IStationService, StationService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRouteForMapScreenService, RouteForMapScreenService>();
-builder.Services.AddScoped<ICoordinationService, CoordinationService>();
-builder.Services.AddScoped<ICoordinationForDriverService, CoordinationForDriverService>();
+builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<ITripForDriverService, TripForDriverService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

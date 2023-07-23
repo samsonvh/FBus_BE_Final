@@ -19,9 +19,9 @@ public partial class Route
 
     public byte Status { get; set; }
 
-    public virtual ICollection<Coordination> Coordinations { get; set; } = new List<Coordination>();
-
     public virtual Account? CreatedBy { get; set; }
 
     public virtual ICollection<RouteStation> RouteStations { get; set; } = new List<RouteStation>();
+
+    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }

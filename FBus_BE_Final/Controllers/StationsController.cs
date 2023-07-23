@@ -33,7 +33,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
 
@@ -59,7 +59,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
 
@@ -74,7 +74,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
 
@@ -89,7 +89,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
 
@@ -123,7 +123,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = entityNotFoundException.InforMessage });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
     }

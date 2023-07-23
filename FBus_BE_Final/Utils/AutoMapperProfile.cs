@@ -59,17 +59,17 @@ namespace FBus_BE.Utils
             CreateMap<RouteStation, RouteStationDto>();
 
             //  Coordination
-            CreateMap<Coordination, CoordinationDto>()
-                .ForMember(coorDto => coorDto.CreatedByCode, options => options.MapFrom(coor => coor.CreatedBy.Code))
-                .ForMember(coorDto => coorDto.Status, options => options.MapFrom(coor => MapCoordinationStatus(coor.Status)));
-            CreateMap<Coordination, CoordinationListingDto>()
-                .ForMember(coorDto => coorDto.BusCode, options => options.MapFrom(coor => coor.Bus.Code))
-                .ForMember(coorDto => coorDto.LicensePlate, options => options.MapFrom(coor => coor.Bus.LicensePlate))
-                .ForMember(coorDto => coorDto.DriverCode, options => options.MapFrom(coor => coor.Driver.Account.Code))
-                .ForMember(coorDto => coorDto.Beginning, options => options.MapFrom(coor => coor.Route.Beginning))
-                .ForMember(coorDto => coorDto.Destination, options => options.MapFrom(coor => coor.Route.Destination))
-                .ForMember(coorDto => coorDto.Status, options => options.MapFrom(coor => MapCoordinationStatus(coor.Status)));
-            CreateMap<CoordinationInputDto, Coordination>();
+            //CreateMap<Coordination, CoordinationDto>()
+            //    .ForMember(coorDto => coorDto.CreatedByCode, options => options.MapFrom(coor => coor.CreatedBy.Code))
+            //    .ForMember(coorDto => coorDto.Status, options => options.MapFrom(coor => MapCoordinationStatus(coor.Status)));
+            //CreateMap<Coordination, CoordinationListingDto>()
+            //    .ForMember(coorDto => coorDto.BusCode, options => options.MapFrom(coor => coor.Bus.Code))
+            //    .ForMember(coorDto => coorDto.LicensePlate, options => options.MapFrom(coor => coor.Bus.LicensePlate))
+            //    .ForMember(coorDto => coorDto.DriverCode, options => options.MapFrom(coor => coor.Driver.Account.Code))
+            //    .ForMember(coorDto => coorDto.Beginning, options => options.MapFrom(coor => coor.Route.Beginning))
+            //    .ForMember(coorDto => coorDto.Destination, options => options.MapFrom(coor => coor.Route.Destination))
+            //    .ForMember(coorDto => coorDto.Status, options => options.MapFrom(coor => MapCoordinationStatus(coor.Status)));
+            //CreateMap<CoordinationInputDto, Coordination>();
         }
 
         private static string MapAccountStatus(byte status)
@@ -157,13 +157,13 @@ namespace FBus_BE.Utils
         {
             switch (status)
             {
-                case (int)CoordinationStatusEnum.Active:
+                case (int)TripStatusEnum.Active:
                     return "ACTIVE";
-                case (int)CoordinationStatusEnum.Inactive:
+                case (int)TripStatusEnum.Inactive:
                     return "INACTIVE";
-                case (int)CoordinationStatusEnum.OnGoing:
+                case (int)TripStatusEnum.OnGoing:
                     return "ONGOING";
-                case (int)CoordinationStatusEnum.Finished:
+                case (int)TripStatusEnum.Finished:
                     return "FINISHED";
                 default:
                     return "DELETED";

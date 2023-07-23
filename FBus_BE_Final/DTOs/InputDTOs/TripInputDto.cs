@@ -2,7 +2,7 @@
 
 namespace FBus_BE.DTOs.InputDTOs
 {
-    public class CoordinationInputDto
+    public class TripInputDto
     {
         [Required]
         public short DriverId { get; set; }
@@ -10,11 +10,8 @@ namespace FBus_BE.DTOs.InputDTOs
         public short BusId { get; set; }
         [Required]
         public short RouteId { get; set; }
-        [MaxLength(500)]
         public string? Note { get; set; }
         [Required]
         public DateTime DateLine { get; set; }
-        [Required]
-        public DateTime DueDate { get; set; }
     }
 }

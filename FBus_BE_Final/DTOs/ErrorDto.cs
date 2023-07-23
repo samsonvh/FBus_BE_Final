@@ -3,6 +3,6 @@
     public class ErrorDto
     {
         public string Title { get; set; }
-        public object Errors { get; set; }
+        public Dictionary<string, string> Errors { get; set; }
     }
 }
