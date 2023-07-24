@@ -2,7 +2,7 @@
 
 namespace FBus_BE.Services
 {
-    public class FirebaseStorageService :   
+    public class FirebaseStorageService : IFirebaseStorageService   
     {
         private readonly StorageClient _storageClient;
         private const string BucketName = "fbus-388009.appspot.com";
