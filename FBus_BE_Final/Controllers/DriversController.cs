@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FBus_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Driversss")]
     [ApiController]
     public class DriversController : ControllerBase, IDefaultController<DriverPageRequest, DriverInputDto>
     {
