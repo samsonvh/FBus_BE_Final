@@ -9,9 +9,9 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", @".\fbus-388009-firebase-adminsdk-lq6n1-e27250cd11.json");
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-var url = $"http://0.0.0.0:{port}";
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", AppContext.BaseDirectory.ToString() + @"\fbus-388009-firebase-adminsdk-lq6n1-e27250cd11.json");
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+//var url = $"http://0.0.0.0:{port}";
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<IConfiguration>(builder.Configuration);
@@ -53,7 +53,7 @@ builder.Services.AddDbContext<FbusMainContext>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 // Services
-builder.Services.AddScoped<IFirebaseStorageService, FirebaseStorageService>();
+builder.Services.AddSingleton<IFirebaseStorageService>(s => new FirebaseStorageService(StorageClient.Create()));
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDriverService, DriverService>();
@@ -64,7 +64,6 @@ builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRouteForMapScreenService, RouteForMapScreenService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<ITripForDriverService, TripForDriverService>();
-builder.Services.AddScoped<INewDriverService, NewDriverService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -115,4 +114,4 @@ app.MapControllers();
 
 app.UseCors(MyAllowSpecificOrigins);
 
-app.Run(url);
+app.Run();
