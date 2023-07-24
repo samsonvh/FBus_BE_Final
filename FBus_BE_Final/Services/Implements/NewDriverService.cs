@@ -29,7 +29,7 @@ namespace FBus_BE.Services.Implements
         //    _storageService = storageService;
         //}
 
-        public NewDriverService(FbusMainContext context, IMapper mapper, IFirebaseStorageService storageService)
+        public NewDriverService(FbusMainContext context, IMapper mapper)
         {
             errors = new Dictionary<string, string>();
             _context = context;
@@ -38,6 +38,7 @@ namespace FBus_BE.Services.Implements
             {
                 { "id", driver => driver.Id }
             };
+            _storageService = new FirebaseStorageService();
         }
 
         public Task<bool> ChangeStatus(int id, string status)
