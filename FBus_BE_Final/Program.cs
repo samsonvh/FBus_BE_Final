@@ -53,7 +53,7 @@ builder.Services.AddDbContext<FbusMainContext>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 // Services
-builder.Services.AddSingleton<IFirebaseStorageService>(s => new FirebaseStorageService(StorageClient.Create()));
+builder.Services.AddSingleton<IFirebaseStorageService, FirebaseStorageService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDriverService, DriverService>();
