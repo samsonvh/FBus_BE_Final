@@ -7,9 +7,9 @@ namespace FBus_BE.Services
         private readonly StorageClient _storageClient;
         private const string BucketName = "fbus-388009.appspot.com";
 
-        public FirebaseStorageService(StorageClient storageClient)
+        public FirebaseStorageService()
         {
-            _storageClient = storageClient;
+            _storageClient = StorageClient.Create();
         }
 
         public async Task<Uri> UploadFile(string name, IFormFile file, string type)
