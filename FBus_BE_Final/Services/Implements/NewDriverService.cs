@@ -38,7 +38,7 @@ namespace FBus_BE.Services.Implements
             {
                 { "id", driver => driver.Id }
             };
-            _storageService = new FirebaseStorageService();
+            //_storageService = new FirebaseStorageService();
         }
 
         public Task<bool> ChangeStatus(int id, string status)
