@@ -83,7 +83,6 @@ namespace FBus_BE.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultPageResponse<DriverListingDto>))]
-        [Authorize("AdminOnly")]
         [HttpGet]
         public async Task<IActionResult> GetList([FromQuery] DriverPageRequest pageRequest)
         {
