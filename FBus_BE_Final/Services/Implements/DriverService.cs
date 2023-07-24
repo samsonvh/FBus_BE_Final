@@ -159,16 +159,17 @@ namespace FBus_BE.Services.Implements
             }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<DriverListingDto> drivers = new List<DriverListingDto>();
-            int totalCount = await _context.Drivers
-                .Where(driver => !driver.Status.Equals((int)DriverStatusEnum.Deleted))
-                .Where(driver => pageRequest.Code != null && pageRequest.Email != null
-                                  ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
-                                  : pageRequest.Code != null && pageRequest.Email == null
-                                    ? driver.Account.Code.Contains(pageRequest.Code)
-                                    : pageRequest.Code == null && pageRequest.Email != null
-                                      ? driver.Account.Email.Contains(pageRequest.Email)
-                                      : true)
-                .CountAsync();
+            //int totalCount = await _context.Drivers
+            //    .Where(driver => !driver.Status.Equals((int)DriverStatusEnum.Deleted))
+            //    .Where(driver => pageRequest.Code != null && pageRequest.Email != null
+            //                      ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
+            //                      : pageRequest.Code != null && pageRequest.Email == null
+            //                        ? driver.Account.Code.Contains(pageRequest.Code)
+            //                        : pageRequest.Code == null && pageRequest.Email != null
+            //                          ? driver.Account.Email.Contains(pageRequest.Email)
+            //                          : true)
+            //    .CountAsync();
+            int totalCount = 0;
             if (totalCount > 0 && totalCount > skippedCount)
             {
                 drivers = pageRequest.Direction == "desc"
