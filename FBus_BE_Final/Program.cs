@@ -64,6 +64,7 @@ builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRouteForMapScreenService, RouteForMapScreenService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<ITripForDriverService, TripForDriverService>();
+builder.Services.AddScoped<INewDriverService, NewDriverService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
