@@ -70,6 +70,17 @@ namespace FBus_BE.Utils
             //    .ForMember(coorDto => coorDto.Destination, options => options.MapFrom(coor => coor.Route.Destination))
             //    .ForMember(coorDto => coorDto.Status, options => options.MapFrom(coor => MapCoordinationStatus(coor.Status)));
             //CreateMap<CoordinationInputDto, Coordination>();
+
+            //  Trip
+            CreateMap<Trip, TripDto>()
+                .ForMember(tripDto => tripDto.CreatedByCode, options => options.MapFrom(trip => trip.CreatedBy.Code))
+                .ForMember(tripDto => tripDto.Status, options => options.MapFrom(trip => MapTripStatus(trip.Status)));
+            CreateMap<TripInputDto, Trip>();
+
+            //  TripStatus
+            CreateMap<TripStatus, TripStatusDto>()
+                .ForMember(tripStatusDto => tripStatusDto.Status, options => options.MapFrom(tripStatus => MapTripStatus(tripStatus.Status)));
+            CreateMap<TripStatusInputDto, TripStatus>();
         }
 
         private static string MapAccountStatus(byte status)
@@ -153,7 +164,7 @@ namespace FBus_BE.Utils
             }
         }
 
-        private static string MapCoordinationStatus(byte status)
+        private static string MapTripStatus(byte status)
         {
             switch (status)
             {
