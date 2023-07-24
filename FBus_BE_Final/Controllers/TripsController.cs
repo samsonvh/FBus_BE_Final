@@ -13,12 +13,12 @@ namespace FBus_BE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TripController : ControllerBase, IDefaultController<TripPageRequest, TripInputDto>
+    public class TripsController : ControllerBase, IDefaultController<TripPageRequest, TripInputDto>
     {
         private readonly ITripService _tripService;
         private ITripForDriverService _tripForDriverService;
 
-        public TripController(ITripService tripService, ITripForDriverService tripForDriverService)
+        public TripsController(ITripService tripService, ITripForDriverService tripForDriverService)
         {
             _tripService = tripService;
             _tripForDriverService = tripForDriverService;
