@@ -87,7 +87,8 @@ namespace FBus_BE.Controllers
         [HttpGet]
         public async Task<IActionResult> GetList([FromQuery] DriverPageRequest pageRequest)
         {
-            return Ok(await _driverService.GetList(pageRequest));
+            //return Ok(await _driverService.GetList(pageRequest));
+            return Ok("Ok");
         }
 
         [NonAction]
