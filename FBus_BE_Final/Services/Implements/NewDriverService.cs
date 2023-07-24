@@ -33,11 +33,11 @@ namespace FBus_BE.Services.Implements
         {
             errors = new Dictionary<string, string>();
             _context = context;
-            _mapper = mapper; 
+            _mapper = mapper;
             _orderDict = new Dictionary<string, Expression<Func<Driver, object>>>
             {
-                        { "id", driver => driver.Id }
-                    };
+                { "id", driver => driver.Id }
+            };
         }
 
         public Task<bool> ChangeStatus(int id, string status)
