@@ -10,7 +10,12 @@ namespace FBus_BE.Controllers
     [ApiController]
     public class TestController : ControllerBase, IDefaultController<DriverPageRequest, DriverInputDto>
     {
-        public TestController() { }
+        private readonly INewDriverService _driverService;
+
+        public TestController(INewDriverService driverService)
+        {
+            _driverService = driverService;
+        }
 
         [NonAction]
         public Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
