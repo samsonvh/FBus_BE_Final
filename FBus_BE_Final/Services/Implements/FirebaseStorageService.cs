@@ -2,14 +2,14 @@
 
 namespace FBus_BE.Services
 {
-    public class FirebaseStorageService : IFirebaseStorageService
+    public class FirebaseStorageService :   
     {
-        //private readonly StorageClient _storageClient;
+        private readonly StorageClient _storageClient;
         private const string BucketName = "fbus-388009.appspot.com";
 
         public FirebaseStorageService()
         {
-            //_storageClient = StorageClient.Create();
+            _storageClient = StorageClient.Create();
         }
 
         public async Task<Uri> UploadFile(string name, IFormFile file, string type)
