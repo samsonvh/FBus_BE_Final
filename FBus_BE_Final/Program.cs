@@ -10,6 +10,9 @@ using System.Text;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", AppContext.BaseDirectory.ToString() + @"\fbus-388009-firebase-adminsdk-lq6n1-e27250cd11.json");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+var url = $"http://0.0.0.0:{port}";
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<IConfiguration>(builder.Configuration);
 
@@ -111,4 +114,4 @@ app.MapControllers();
 
 app.UseCors(MyAllowSpecificOrigins);
 
-app.Run();
+app.Run(url);
