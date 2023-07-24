@@ -5,7 +5,7 @@ using FBus_BE.DTOs;
 
 namespace FBus_BE.Services
 {
-    public interface INewDriverService
+    public interface INewDriverService : IDefaultService<DriverDto, DriverListingDto, DriverInputDto, DriverPageRequest>
     {
     }
 }
