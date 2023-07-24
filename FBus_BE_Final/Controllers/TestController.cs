@@ -21,19 +21,10 @@ namespace FBus_BE.Controllers
             _driverService = driverService;
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        [Authorize("AdminOnly")]
-        [HttpPatch("{id:int}")]
-        public async Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
+        [NonAction]
+        public Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] string status)
         {
-            try
-            {
-                return Ok(await _driverService.ChangeStatus(id, status));
-            }
-            catch (EntityNotFoundException entityNotFoundException)
-            {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = { { "message", entityNotFoundException.InforMessage } } });
-            }
+            throw new NotImplementedException();
         }
 
         [NonAction]
@@ -42,52 +33,27 @@ namespace FBus_BE.Controllers
             throw new NotImplementedException();
         }
 
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(DriverDto))]
-        [Authorize("AdminOnly")]
-        [HttpPost]
-        public async Task<IActionResult> CreateWithForm([FromForm] DriverInputDto inputDto)
+        [NonAction]
+        public Task<IActionResult> CreateWithForm([FromForm] DriverInputDto inputDto)
         {
-            try
-            {
-                int userId = Convert.ToInt32(User.FindFirst("Id").Value);
-                DriverDto? driver = await _driverService.Create(userId, inputDto);
-                return Ok(driver);
-            }
-            catch (DuplicateException duplicateException)
-            {
-                return BadRequest(new ErrorDto { Title = "Duplicated", Errors = duplicateException.GetErrors() });
-            }
+            throw new NotImplementedException();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        [Authorize("AdminOnly")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        [NonAction]
+        public Task<IActionResult> Delete([FromRoute] int id)
         {
-            try
-            {
-                return Ok(await _driverService.Delete(id));
-            }
-            catch (EntityNotFoundException entityNotFoundException)
-            {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
-            }
+            throw new NotImplementedException();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DriverDto))]
-        [Authorize("AdminOnly")]
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetDetails([FromRoute] int id)
+        [NonAction]
+        public Task<IActionResult> GetDetails([FromRoute] int id)
         {
-            return Ok(await _driverService.GetDetails(id));
+            throw new NotImplementedException();
         }
-
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultPageResponse<DriverListingDto>))]
         [HttpGet]
         public async Task<IActionResult> GetList([FromQuery] DriverPageRequest pageRequest)
         {
-            //return Ok(await _driverService.GetList(pageRequest));
-            return Ok("Ok");
+            return Ok("OK");
         }
 
         [NonAction]
@@ -96,25 +62,10 @@ namespace FBus_BE.Controllers
             throw new NotImplementedException();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DriverDto))]
-        [Authorize("AdminOnly")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateWithForm([FromRoute] int id, [FromForm] DriverInputDto inputDto)
+        [NonAction]
+        public Task<IActionResult> UpdateWithForm([FromRoute] int id, [FromForm] DriverInputDto inputDto)
         {
-            try
-            {
-                int userId = Convert.ToInt32(User.FindFirst("Id").Value);
-                DriverDto? driver = await _driverService.Update(userId, inputDto, id);
-                return Ok(driver);
-            }
-            catch (DuplicateException duplicateException)
-            {
-                return BadRequest(new ErrorDto { Title = "Duplicated", Errors = duplicateException.GetErrors() });
-            }
-            catch (EntityNotFoundException entityNotFoundException)
-            {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
-            }
+            throw new NotImplementedException();
         }
     }
 }
