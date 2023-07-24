@@ -1,7 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
 
 # Copy csproj and restore as distinct layers
-COPY ./FBus_BE/FBus_BE.csproj ./FBus_BE/FBus_BE.csproj
+COPY ./FBus_BE_Final/FBus_BE.csproj ./FBus_BE_Final/FBus_BE.csproj
 COPY *.sln .
 RUN dotnet restore
 
