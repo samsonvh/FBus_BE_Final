@@ -16,7 +16,7 @@ namespace FBus_BE.Services.Implements
         private readonly FbusMainContext _context;
         private readonly IMapper _mapper;
         private readonly Dictionary<string, Expression<Func<Driver, object>>> _orderDict;
-        private readonly IFirebaseStorageService _storageService;
+        private readonly FirebaseStorageService _storageService;
         //private const string cloudStoragePrefix = @"https://firebasestorage.googleapis.com/v0/b/fbus-388009.appspot.com/o/";
 
         //public NewDriverService(FbusMainContext context, IMapper mapper, IFirebaseStorageService storageService) {
@@ -38,7 +38,7 @@ namespace FBus_BE.Services.Implements
             {
                 { "id", driver => driver.Id }
             };
-            //_storageService = new FirebaseStorageService();
+            _storageService = new FirebaseStorageService();
         }
 
         public Task<bool> ChangeStatus(int id, string status)
