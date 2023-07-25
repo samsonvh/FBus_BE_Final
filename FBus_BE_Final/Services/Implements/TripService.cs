@@ -29,14 +29,35 @@ namespace FBus_BE.Services.Implements
             };
         }
 
-        public Task<bool> ChangeStatus(int id, string status)
+        public async Task<bool> ChangeStatus(int id, string status)
         {
-            throw new NotImplementedException();
+            Trip trip = await _context.Trips.FirstAsync(trip => trip.Id == id && trip.Status == (byte)TripStatusEnum.Deleted);
+            if(trip != null)
+            {
+                switch (trip.Status)
+                {
+                    case (byte)TripStatusEnum.Active:
+                        trip.Status = (byte)TripStatusEnum.Inactive;
+                        break;
+                    case (byte)TripStatusEnum.Inactive:
+                        trip.Status = (byte)TripStatusEnum.Active;
+                        break;
+                    default:
+                        return false;
+                }
+                _context.Trips.Update(trip);
+                await _context.SaveChangesAsync();
+                return true;
+            } else
+            {
+                throw new EntityNotFoundException("Trip", id);
+            }
         }
 
         public async Task<TripDto> Create(int createdById, TripInputDto inputDto)
         {
             Trip trip = _mapper.Map<Trip>(inputDto);
+            trip.Status = (byte)TripStatusEnum.Active;
             _context.Trips.Add(trip);
             await _context.SaveChangesAsync();
             return _mapper.Map<TripDto>(trip);
