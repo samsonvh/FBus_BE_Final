@@ -48,7 +48,7 @@ namespace FBus_BE.Services.Implements
             Trip trip = await _context.Trips
                 .Include(trip => trip.Driver)
                 .Include(trip => trip.Bus)
-                .Include(trip => trip.Route)
+                .Include(trip => trip.Route).ThenInclude(route => route.RouteStations)
                 .FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
@@ -88,14 +88,14 @@ namespace FBus_BE.Services.Implements
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<TripDto> trips = new List<TripDto>();
             int totalCount = await _context.Trips
-                .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
+                .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted && trip.Status == (byte)TripStatusEnum.Inactive)
                 .Where(trip => trip.Driver.AccountId == driverId)
                 .CountAsync();
             if (totalCount > 0)
             {
                 trips = await _context.Trips.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                     .Skip(skippedCount)
-                    .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
+                    .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted && trip.Status == (byte)TripStatusEnum.Inactive)
                     .Where(trip => trip.Driver.AccountId == driverId)
                     .Include(trip => trip.Bus).ThenInclude(bus => bus.CreatedBy)
                     .Include(trip => trip.Route).ThenInclude(route => route.CreatedBy)
