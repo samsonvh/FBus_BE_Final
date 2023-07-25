@@ -97,6 +97,9 @@ namespace FBus_BE.Services.Implements
                     .Skip(skippedCount)
                     .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
                     .Where(trip => trip.DriverId == driverId)
+                    .Include(trip => trip.Bus).ThenInclude(bus => bus.CreatedBy)
+                    .Include(trip => trip.Route).ThenInclude(route => route.CreatedBy)
+                    .Include(trip => trip.CreatedBy)
                     .Select(trip => _mapper.Map<TripDto>(trip))
                     .ToListAsync();
             }
