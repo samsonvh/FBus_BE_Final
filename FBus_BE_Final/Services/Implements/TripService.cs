@@ -58,6 +58,7 @@ namespace FBus_BE.Services.Implements
         {
             Trip trip = _mapper.Map<Trip>(inputDto);
             trip.Status = (byte)TripStatusEnum.Active;
+            trip.CreatedById = (short?)createdById;
             _context.Trips.Add(trip);
             await _context.SaveChangesAsync();
             return _mapper.Map<TripDto>(trip);
@@ -126,6 +127,11 @@ namespace FBus_BE.Services.Implements
                 trips = await _context.Trips.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                     .Skip(skippedCount)
                     .Where(trip => trip.Status != (byte) TripStatusEnum.Deleted)
+                    .Include(trip => trip.Driver).ThenInclude(driver => driver.CreatedBy)
+                    .Include(trip => trip.Driver).ThenInclude(driver => driver.Account)
+                    .Include(trip => trip.Bus).ThenInclude(bus => bus.CreatedBy)
+                    .Include(trip => trip.Route).ThenInclude(route => route.CreatedBy)
+                    .Include(trip => trip.CreatedBy)
                     .Select(trip => _mapper.Map<TripDto>(trip))
                     .ToListAsync();
             }
