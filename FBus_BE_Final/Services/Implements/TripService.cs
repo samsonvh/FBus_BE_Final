@@ -6,6 +6,7 @@ using FBus_BE.DTOs.PageDTOs;
 using FBus_BE.Enums;
 using FBus_BE.Exceptions;
 using FBus_BE.Models;
+using FBus_BE.Utils;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -31,24 +32,35 @@ namespace FBus_BE.Services.Implements
 
         public async Task<bool> ChangeStatus(int id, string status)
         {
-            Trip trip = await _context.Trips.FirstAsync(trip => trip.Id == id && trip.Status == (byte)TripStatusEnum.Deleted);
-            if(trip != null)
+            Trip trip = await _context.Trips.FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
+            if (trip != null)
             {
-                switch (trip.Status)
+                if (trip.Status != (byte)TripStatusEnum.Deleted && trip.Status != (byte)TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
                 {
-                    case (byte)TripStatusEnum.Active:
-                        trip.Status = (byte)TripStatusEnum.Inactive;
-                        break;
-                    case (byte)TripStatusEnum.Inactive:
-                        trip.Status = (byte)TripStatusEnum.Active;
-                        break;
-                    default:
-                        return false;
+                    status = TextUtil.Capitalize(status);
+                    TripStatusEnum tripStatusEnum;
+                    switch (status)
+                    {
+                        case nameof(TripStatusEnum.Active):
+                            tripStatusEnum = TripStatusEnum.Active;
+                            break;
+                        case nameof(TripStatusEnum.Inactive):
+                            tripStatusEnum = TripStatusEnum.Inactive;
+                            break;
+                        default:
+                            return false;
+                    }
+                    trip.Status = (byte)tripStatusEnum;
+                    _context.Trips.Update(trip);
+                    await _context.SaveChangesAsync();
+                    return true;
                 }
-                _context.Trips.Update(trip);
-                await _context.SaveChangesAsync();
-                return true;
-            } else
+                else
+                {
+                    return false;
+                }
+            }
+            else
             {
                 throw new EntityNotFoundException("Trip", id);
             }
@@ -67,19 +79,21 @@ namespace FBus_BE.Services.Implements
         public async Task<bool> Delete(int id)
         {
             Trip trip = await _context.Trips.FirstOrDefaultAsync(trip => trip.Id == id);
-            if(trip != null)
+            if (trip != null)
             {
-                if(trip.Status != (byte) TripStatusEnum.Deleted && trip.Status != (byte) TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
+                if (trip.Status != (byte)TripStatusEnum.Deleted && trip.Status != (byte)TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
                 {
-                    trip.Status = (byte) TripStatusEnum.Deleted;
+                    trip.Status = (byte)TripStatusEnum.Deleted;
                     _context.Trips.Update(trip);
                     await _context.SaveChangesAsync();
                     return true;
-                } else
+                }
+                else
                 {
                     return false;
                 }
-            } else
+            }
+            else
             {
                 throw new EntityNotFoundException("Trip", id);
             }
@@ -91,7 +105,7 @@ namespace FBus_BE.Services.Implements
                 .Include(trip => trip.Driver)
                 .Include(trip => trip.Bus)
                 .Include(trip => trip.Route)
-                .FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte) TripStatusEnum.Deleted);
+                .FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
                 return _mapper.Map<TripDto>(trip);
@@ -122,11 +136,11 @@ namespace FBus_BE.Services.Implements
             int totalCount = await _context.Trips
                 .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
                 .CountAsync();
-            if(totalCount > 0)
+            if (totalCount > 0)
             {
                 trips = await _context.Trips.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                     .Skip(skippedCount)
-                    .Where(trip => trip.Status != (byte) TripStatusEnum.Deleted)
+                    .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
                     .Include(trip => trip.Driver).ThenInclude(driver => driver.CreatedBy)
                     .Include(trip => trip.Driver).ThenInclude(driver => driver.Account)
                     .Include(trip => trip.Bus).ThenInclude(bus => bus.CreatedBy)
@@ -148,13 +162,14 @@ namespace FBus_BE.Services.Implements
                 .FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
-                if(trip.Status == (byte)TripStatusEnum.Active || trip.Status == (byte)TripStatusEnum.Inactive)
+                if (trip.Status == (byte)TripStatusEnum.Active || trip.Status == (byte)TripStatusEnum.Inactive)
                 {
                     trip = _mapper.Map(inputDto, trip);
                     _context.Trips.Update(trip);
                     await _context.SaveChangesAsync();
                     return _mapper.Map<TripDto>(trip);
-                } else
+                }
+                else
                 {
                     return null;
                 }
