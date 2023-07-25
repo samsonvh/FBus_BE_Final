@@ -92,7 +92,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(MyAllowSpecificOrigins, builder =>
     {
-        builder.WithOrigins("http://localhost:3000", "https://fbus-admin-portal.vercel.app").AllowAnyMethod().AllowAnyHeader();
+        builder.WithOrigins("http://localhost:3000", "http://localhost:5500", "https://fbus-admin-portal.vercel.app").AllowAnyMethod().AllowAnyHeader();
     });
 });
 
