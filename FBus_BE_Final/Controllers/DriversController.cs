@@ -32,7 +32,7 @@ namespace FBus_BE.Controllers
             }
             catch (EntityNotFoundException entityNotFoundException)
             {
-                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = { { "message", entityNotFoundException.InforMessage } } });
+                return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
         }
 
@@ -55,7 +55,7 @@ namespace FBus_BE.Controllers
             }
             catch (DuplicateException duplicateException)
             {
-                return BadRequest(new ErrorDto { Title = "Duplicated", Errors = duplicateException.GetErrors()});
+                return BadRequest(new ErrorDto { Title = "Duplicated", Errors = duplicateException.GetErrors() });
             }
         }
 

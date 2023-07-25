@@ -78,10 +78,10 @@ namespace FBus_BE.Services.Implements
 
         public async Task<bool> Delete(int id)
         {
-            Trip trip = await _context.Trips.FirstOrDefaultAsync(trip => trip.Id == id);
+            Trip trip = await _context.Trips.FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
-                if (trip.Status != (byte)TripStatusEnum.Deleted && trip.Status != (byte)TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
+                if (trip.Status != (byte)TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
                 {
                     trip.Status = (byte)TripStatusEnum.Deleted;
                     _context.Trips.Update(trip);
