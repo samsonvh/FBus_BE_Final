@@ -192,7 +192,7 @@ namespace FBus_BE.Services.Implements
                 {
                     if (station.Image != null)
                     {
-                        string fileName = station.Image.Substring(station.Image.LastIndexOf('/') + 1).Replace("?alt=media", "").Replace("%2F", "");
+                        string fileName = station.Image.Substring(station.Image.LastIndexOf('/') + 1).Replace("?alt=media", "").Replace("%2F", "/");
                         await _storageService.DeleteFile(fileName);
                     }
                     Uri uri = await _storageService.UploadFile(inputDto.Code, inputDto.Image, "stations");
