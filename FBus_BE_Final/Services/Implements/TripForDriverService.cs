@@ -89,14 +89,14 @@ namespace FBus_BE.Services.Implements
             List<TripDto> trips = new List<TripDto>();
             int totalCount = await _context.Trips
                 .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
-                .Where(trip => trip.DriverId == driverId)
+                .Where(trip => trip.Driver.AccountId == driverId)
                 .CountAsync();
             if (totalCount > 0)
             {
                 trips = await _context.Trips.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                     .Skip(skippedCount)
                     .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
-                    .Where(trip => trip.DriverId == driverId)
+                    .Where(trip => trip.Driver.AccountId == driverId)
                     .Include(trip => trip.Bus).ThenInclude(bus => bus.CreatedBy)
                     .Include(trip => trip.Route).ThenInclude(route => route.CreatedBy)
                     .Include(trip => trip.CreatedBy)
