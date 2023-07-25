@@ -5,6 +5,7 @@ using FBus_BE.DTOs.PageDTOs;
 using FBus_BE.Enums;
 using FBus_BE.Exceptions;
 using FBus_BE.Models;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -46,12 +47,25 @@ namespace FBus_BE.Services.Implements
         public async Task<TripDto> GetDetails(int id)
         {
             Trip trip = await _context.Trips
-                .Include(trip => trip.Driver)
                 .Include(trip => trip.Bus)
-                .Include(trip => trip.Route).ThenInclude(route => route.RouteStations)
+                .Include(trip => trip.Route)
                 .FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
+                List<RouteStation> routeStations = await _context.RouteStations
+                .Include(routeStation => routeStation.Station)
+                .Where(routeStation => routeStation.RouteId == trip.RouteId)
+                .Select(routeStation => new RouteStation
+                {
+                    Id = routeStation.Id,
+                    StationId = routeStation.StationId,
+                    RouteId = routeStation.RouteId,
+                    Route = null,
+                    Station = routeStation.Station,
+                    StationOrder = routeStation.StationOrder,
+                })
+                .ToListAsync();
+                trip.Route.RouteStations = routeStations;
                 return _mapper.Map<TripDto>(trip);
             }
             else
