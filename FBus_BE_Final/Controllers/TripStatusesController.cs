@@ -33,7 +33,7 @@ namespace FBus_BE.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateWithForm([FromForm] TripStatusInputDto inputDto)
         {
-            int userId = Convert.ToInt32(User.FindFirst("Id"));
+            int userId = Convert.ToInt32(User.FindFirst("Id").Value);
             return Ok(await _tripStatusService.Create(userId, inputDto));
         }
 

@@ -36,11 +36,12 @@ namespace FBus_BE.Services.Implements
         public async Task<TripStatusDto> Create(int createdById, TripStatusInputDto inputDto)
         {
             Trip trip = await _context.Trips
+                .Include(trip => trip.Driver)
                 .Include(trip => trip.Route).ThenInclude(route => route.RouteStations)
                 .FirstOrDefaultAsync(trip => trip.Id == inputDto.TripId);
             if (trip != null)
             {
-                if (trip.DriverId == createdById)
+                if (trip.Driver.AccountId == createdById)
                 {
                     int? latestTripStatusOrder = await _context.TripStatuses
                         .OrderBy(tripStatus => tripStatus.Id)
@@ -57,7 +58,7 @@ namespace FBus_BE.Services.Implements
                     }
                     TripStatus tripStatus = _mapper.Map<TripStatus>(inputDto);
                     tripStatus.CreatedById = (short?)createdById;
-                    if (latestTripStatusOrder == null)
+                    if (latestTripStatusOrder == 0)
                     {
                         tripStatus.StatusOrder = 1;
                         tripStatus.Status = (byte)TripStatusEnum.OnGoing;
