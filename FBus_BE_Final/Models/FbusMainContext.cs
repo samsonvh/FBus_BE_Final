@@ -38,13 +38,13 @@ public partial class FbusMainContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07CB5A6945");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC0771ED9F3C");
 
             entity.ToTable("Account");
 
-            entity.HasIndex(e => e.Code, "UQ__Account__A25C5AA77EA5576B").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Account__A25C5AA7FA8D9E73").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Account__A9D105345741DCC1").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Account__A9D10534DD89C1FB").IsUnique();
 
             entity.Property(e => e.Code)
                 .HasMaxLength(20)
@@ -62,13 +62,13 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<Bus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Bus__3214EC07C221AC3D");
+            entity.HasKey(e => e.Id).HasName("PK__Bus__3214EC07BACF3A20");
 
             entity.ToTable("Bus");
 
-            entity.HasIndex(e => e.LicensePlate, "UQ__Bus__026BC15C06613F3A").IsUnique();
+            entity.HasIndex(e => e.LicensePlate, "UQ__Bus__026BC15C2C88F2AD").IsUnique();
 
-            entity.HasIndex(e => e.Code, "UQ__Bus__A25C5AA7739E0BC4").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Bus__A25C5AA7DC331152").IsUnique();
 
             entity.Property(e => e.Brand).HasMaxLength(20);
             entity.Property(e => e.Code)
@@ -91,7 +91,7 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<Driver>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Driver__3214EC074C890AA6");
+            entity.HasKey(e => e.Id).HasName("PK__Driver__3214EC07853DE8B1");
 
             entity.ToTable("Driver");
 
@@ -125,7 +125,7 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<Route>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Route__3214EC07C8C4253A");
+            entity.HasKey(e => e.Id).HasName("PK__Route__3214EC07D59E5463");
 
             entity.ToTable("Route");
 
@@ -142,7 +142,7 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<RouteStation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__RouteSta__3214EC0718CD1219");
+            entity.HasKey(e => e.Id).HasName("PK__RouteSta__3214EC07D5423C3B");
 
             entity.ToTable("RouteStation");
 
@@ -159,15 +159,13 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<Station>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Station__3214EC07891D93E8");
+            entity.HasKey(e => e.Id).HasName("PK__Station__3214EC07037E2A1E");
 
             entity.ToTable("Station");
 
-            entity.HasIndex(e => e.Code, "UQ__Station__A25C5AA74955F886").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Station__A25C5AA72981B2E2").IsUnique();
 
-            entity.Property(e => e.AddressNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false);
+            entity.Property(e => e.AddressNumber).HasMaxLength(20);
             entity.Property(e => e.City).HasMaxLength(100);
             entity.Property(e => e.Code)
                 .HasMaxLength(10)
@@ -190,7 +188,7 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<Trip>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Trip__3214EC072DE1103C");
+            entity.HasKey(e => e.Id).HasName("PK__Trip__3214EC07A2E6A0C0");
 
             entity.ToTable("Trip");
 
@@ -198,6 +196,9 @@ public partial class FbusMainContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DateLine).HasColumnType("datetime");
+            entity.Property(e => e.DueDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Note).HasMaxLength(500);
 
             entity.HasOne(d => d.Bus).WithMany(p => p.Trips)
@@ -219,7 +220,7 @@ public partial class FbusMainContext : DbContext
 
         modelBuilder.Entity<TripStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TripStat__3214EC07A1893980");
+            entity.HasKey(e => e.Id).HasName("PK__TripStat__3214EC074639AF16");
 
             entity.ToTable("TripStatus");
 

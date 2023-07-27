@@ -13,6 +13,7 @@
         public RouteDto Route { get; set; }
         public string? Note { get; set; }
         public DateTime DateLine { get; set; }
+        public DateTime DueDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public string Status { get; set; }
     }
