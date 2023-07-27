@@ -157,10 +157,26 @@ namespace FBus_BE.Services.Implements
             {
                 pageRequest.OrderBy = "id";
             }
+            DriverStatusEnum statusEnum = DriverStatusEnum.Active;
+            bool validStatus = false;
+            if(pageRequest.Status != null)
+            {
+                switch(TextUtil.Capitalize(pageRequest.Status))
+                {
+                    case nameof(DriverStatusEnum.Active):
+                        statusEnum = DriverStatusEnum.Active;
+                        validStatus = true;
+                        break;
+                    case nameof(DriverStatusEnum.Inactive):
+                        statusEnum = DriverStatusEnum.Inactive;
+                        validStatus = true;
+                        break;
+                }
+            }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<DriverListingDto> drivers = new List<DriverListingDto>();
             int totalCount = await _context.Drivers
-                .Where(driver => !driver.Status.Equals((int)DriverStatusEnum.Deleted))
+                .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : !driver.Status.Equals((int)DriverStatusEnum.Deleted))
                 .Where(driver => pageRequest.Code != null && pageRequest.Email != null
                                   ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
                                   : pageRequest.Code != null && pageRequest.Email == null
@@ -175,7 +191,7 @@ namespace FBus_BE.Services.Implements
                     ? await _context.Drivers.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                             .Skip(skippedCount)
                                             .Include(driver => driver.Account)
-                                            .Where(driver => !driver.Status.Equals((int)DriverStatusEnum.Deleted))
+                                            .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : !driver.Status.Equals((int)DriverStatusEnum.Deleted))
                                             .Where(driver => pageRequest.Code != null && pageRequest.Email != null
                                                               ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
                                                               : pageRequest.Code != null && pageRequest.Email == null
@@ -188,7 +204,7 @@ namespace FBus_BE.Services.Implements
                     : await _context.Drivers.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                             .Skip(skippedCount)
                                             .Include(driver => driver.Account)
-                                            .Where(driver => !driver.Status.Equals((int)DriverStatusEnum.Deleted))
+                                            .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : !driver.Status.Equals((int)DriverStatusEnum.Deleted))
                                             .Where(driver => pageRequest.Code != null && pageRequest.Email != null
                                                               ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
                                                               : pageRequest.Code != null && pageRequest.Email == null

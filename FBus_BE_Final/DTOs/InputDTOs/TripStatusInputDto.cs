@@ -10,5 +10,6 @@ namespace FBus_BE.DTOs.InputDTOs
         public short? StationId { get; set; }
         public byte? CountUp { get; set; }
         public byte? CountDown { get; set; }
+        public bool? IsFinished { get; set; }
     }
 }

@@ -4,5 +4,6 @@
     {
         public string? Code { get; set; }
         public string? LicensePlate { get; set; }
+        public string? Status { get; set; }
     }
 }
