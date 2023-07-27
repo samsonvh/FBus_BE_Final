@@ -23,6 +23,8 @@ public partial class Trip
 
     public byte Status { get; set; }
 
+    public DateTime DueDate { get; set; }
+
     public virtual Bus? Bus { get; set; }
 
     public virtual Account? CreatedBy { get; set; }

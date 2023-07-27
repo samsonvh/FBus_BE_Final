@@ -13,5 +13,7 @@ namespace FBus_BE.DTOs.InputDTOs
         public string? Note { get; set; }
         [Required]
         public DateTime DateLine { get; set; }
+        [Required]
+        public DateTime DueDate { get; set; }
     }
 }
