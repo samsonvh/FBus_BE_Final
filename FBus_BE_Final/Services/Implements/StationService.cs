@@ -146,10 +146,26 @@ namespace FBus_BE.Services.Implements
             {
                 pageRequest.OrderBy = "id";
             }
+            StationStatusEnum statusEnum = StationStatusEnum.Active;
+            bool validStatus = false;
+            if (pageRequest.Status != null)
+            {
+                switch (TextUtil.Capitalize(pageRequest.Status))
+                {
+                    case nameof(StationStatusEnum.Active):
+                        statusEnum = StationStatusEnum.Active;
+                        validStatus = true;
+                        break;
+                    case nameof(StationStatusEnum.Inactive):
+                        statusEnum = StationStatusEnum.Inactive;
+                        validStatus = true;
+                        break;
+                }
+            }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<StationListingDto> stations = new List<StationListingDto>();
             int totalCount = await _context.Stations
-                .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                .Where(station => (validStatus) ? station.Status == (byte)statusEnum : station.Status != (byte)StationStatusEnum.Deleted)
                 .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
                 .CountAsync();
             if (totalCount > 0)
@@ -157,13 +173,13 @@ namespace FBus_BE.Services.Implements
                 stations = pageRequest.Direction == "desc"
                     ? await _context.Stations.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
-                                             .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                                             .Where(station => (validStatus) ? station.Status == (byte)statusEnum : station.Status != (byte)StationStatusEnum.Deleted)
                                              .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
                                              .Select(station => _mapper.Map<StationListingDto>(station))
                                              .ToListAsync()
                     : await _context.Stations.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
-                                             .Where(station => station.Status != (byte)StationStatusEnum.Deleted)
+                                             .Where(station => (validStatus) ? station.Status == (byte)statusEnum : station.Status != (byte)StationStatusEnum.Deleted)
                                              .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
                                              .Select(station => _mapper.Map<StationListingDto>(station))
                                              .ToListAsync();

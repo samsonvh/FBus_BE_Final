@@ -54,7 +54,7 @@ namespace FBus_BE.Services.Implements
             {
                 List<RouteStation> routeStations = await _context.RouteStations
                 .Include(routeStation => routeStation.Station)
-                .Where(routeStation => routeStation.RouteId == trip.RouteId)
+                .Where(routeStation => routeStation.RouteId == trip.RouteId && routeStation.Station.Status == (byte)StationStatusEnum.Active)
                 .Select(routeStation => new RouteStation
                 {
                     Id = routeStation.Id,

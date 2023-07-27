@@ -32,11 +32,20 @@ namespace FBus_BE.Services.Implements
 
         public async Task<bool> ChangeStatus(int id, string status)
         {
-            Trip trip = await _context.Trips.FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
+            Trip trip = await _context.Trips
+                .Include(trip => trip.Route)
+                .Include(trip => trip.Bus)
+                .Include(trip => trip.Driver)
+                .FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
                 if (trip.Status != (byte)TripStatusEnum.Deleted && trip.Status != (byte)TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
                 {
+                    if (trip.Route.Status == (byte)RouteStatusEnum.Deleted || trip.Bus.Status == (byte)RouteStatusEnum.Deleted || trip.Driver.Status == (byte)DriverStatusEnum.Deleted)
+                    {
+                        return false;
+                    }
+
                     status = TextUtil.Capitalize(status);
                     TripStatusEnum tripStatusEnum;
                     switch (status)
@@ -68,6 +77,8 @@ namespace FBus_BE.Services.Implements
 
         public async Task<TripDto> Create(int createdById, TripInputDto inputDto)
         {
+            ValidateTripDate(inputDto.DateLine, inputDto.DueDate);
+            await ValidateComponents(inputDto.DriverId, inputDto.BusId, inputDto.RouteId, inputDto.DateLine, inputDto.DueDate);
             Trip trip = _mapper.Map<Trip>(inputDto);
             trip.Status = (byte)TripStatusEnum.Active;
             trip.CreatedById = (short?)createdById;
@@ -78,7 +89,7 @@ namespace FBus_BE.Services.Implements
 
         public async Task<bool> Delete(int id)
         {
-            Trip trip = await _context.Trips.FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
+            Trip? trip = await _context.Trips.FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
                 if (trip.Status != (byte)TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
@@ -101,7 +112,7 @@ namespace FBus_BE.Services.Implements
 
         public async Task<TripDto> GetDetails(int id)
         {
-            Trip trip = await _context.Trips
+            Trip? trip = await _context.Trips
                 .Include(trip => trip.Driver)
                 .Include(trip => trip.Bus)
                 .Include(trip => trip.Route)
@@ -158,12 +169,15 @@ namespace FBus_BE.Services.Implements
 
         public async Task<TripDto> Update(int createdById, TripInputDto inputDto, int id)
         {
-            Trip trip = await _context.Trips
+            ValidateTripDate(inputDto.DateLine, inputDto.DueDate);
+            await ValidateComponents(inputDto.DriverId, inputDto.BusId, inputDto.RouteId, inputDto.DateLine, inputDto.DueDate);
+            Trip? trip = await _context.Trips
                 .FirstOrDefaultAsync(trip => trip.Id == id && trip.Status != (byte)TripStatusEnum.Deleted);
             if (trip != null)
             {
                 if (trip.Status == (byte)TripStatusEnum.Active || trip.Status == (byte)TripStatusEnum.Inactive)
                 {
+                    ValidateTripDate(inputDto.DateLine, inputDto.DueDate);
                     trip = _mapper.Map(inputDto, trip);
                     _context.Trips.Update(trip);
                     await _context.SaveChangesAsync();
@@ -177,6 +191,67 @@ namespace FBus_BE.Services.Implements
             else
             {
                 throw new EntityNotFoundException("Trip", id);
+            }
+        }
+
+        private void ValidateTripDate(DateTime dateLine, DateTime dueDate)
+        {
+            bool hasErrors = false;
+            if (dateLine.Date <= DateTime.Now)
+            {
+                hasErrors = true;
+                errors.Add("dateLine", "DateLine must be beyond today");
+            }
+            if (dueDate.Date <= DateTime.Now)
+            {
+                hasErrors = true;
+                errors.Add("dueDate", "DueDate must be beyond today");
+            }
+            else
+            {
+                if (dueDate.TimeOfDay <= dateLine.TimeOfDay)
+                {
+                    hasErrors = true;
+                    errors.Add("dueDate", "DueDate must be beyond Dateline");
+                }
+            }
+            if (hasErrors)
+            {
+                throw new TripDateInvalidException(errors);
+            }
+        }
+
+        private async Task ValidateComponents(short driverId, short busId, short routeId, DateTime dateLine, DateTime dueDate)
+        {
+            bool hasErrors = false;
+            Trip? tripHasDriver = await _context.Trips
+                .Where(trip => trip.DriverId == driverId && trip.DateLine >= dateLine && trip.DueDate <= dueDate)
+                .FirstOrDefaultAsync();
+            if (tripHasDriver != null)
+            {
+                errors.Add("driverId", "This Driver is occupied within that range of time");
+                hasErrors = true;
+            }
+            Trip? tripHasBus = await _context.Trips
+                .Where(trip => trip.BusId == busId && trip.DateLine >= dateLine && trip.DueDate <= dueDate)
+                .FirstOrDefaultAsync();
+            if (tripHasBus != null)
+            {
+                errors.Add("busId", "This Bus is occupied within that range of time");
+                hasErrors = true;
+            }
+            Trip? tripHasRoute = await _context.Trips
+                .Where(trip => trip.RouteId == routeId && trip.DateLine >= dateLine && trip.DueDate <= dueDate)
+                .FirstOrDefaultAsync();
+            if (tripHasDriver != null)
+            {
+                errors.Add("routeId", "This Route is occupied within that range of time");
+                hasErrors = true;
+            }
+
+            if (hasErrors)
+            {
+                throw new OccupiedException(errors);
             }
         }
     }

@@ -41,9 +41,9 @@ namespace FBus_BE.Services.Implements
                 .FirstOrDefaultAsync(trip => trip.Id == inputDto.TripId);
             if (trip != null)
             {
-                if (trip.Driver.AccountId == createdById)
+                if (trip.Driver.AccountId == createdById && trip.Status != (byte)TripStatusEnum.Finished)
                 {
-                    int? latestTripStatusOrder = await _context.TripStatuses
+                    int latestTripStatusOrder = await _context.TripStatuses
                         .OrderBy(tripStatus => tripStatus.Id)
                         .Where(tripStatus => tripStatus.TripId == trip.Id)
                         .Select(tripStatus => tripStatus.StatusOrder)
@@ -56,6 +56,19 @@ namespace FBus_BE.Services.Implements
                     {
                         inputDto.CountUp = 0;
                     }
+                    if (inputDto.IsFinished == null)
+                    {
+                        inputDto.IsFinished = false;
+
+                        Trip? onGoingTrip = await _context.Trips
+                            .Include(trip => trip.Driver)
+                            .Where(trip => trip.Driver.AccountId == createdById && trip.Status == (byte)TripStatusEnum.OnGoing)
+                            .FirstOrDefaultAsync();
+                        if(onGoingTrip != null)
+                        {
+                            return null;
+                        }
+                    }
                     TripStatus tripStatus = _mapper.Map<TripStatus>(inputDto);
                     tripStatus.CreatedById = (short?)createdById;
                     if (latestTripStatusOrder == 0)
@@ -63,30 +76,70 @@ namespace FBus_BE.Services.Implements
                         tripStatus.StatusOrder = 1;
                         tripStatus.Status = (byte)TripStatusEnum.OnGoing;
                         trip.Status = (byte)TripStatusEnum.OnGoing;
-                        _context.TripStatuses.Add(tripStatus);
                         _context.Trips.Update(trip);
-                        await _context.SaveChangesAsync();
                     }
                     else
                     {
                         tripStatus.StatusOrder = (byte)(latestTripStatusOrder + 1);
-                        short lastStationId = (short)trip.Route.RouteStations.Last().StationId;
-                        if(lastStationId == inputDto.StationId)
+                        if ((bool)inputDto.IsFinished)
                         {
                             tripStatus.Status = (byte)TripStatusEnum.Finished;
                             trip.Status = (byte)TripStatusEnum.Finished;
-                            _context.TripStatuses.Add(tripStatus);
                             _context.Trips.Update(trip);
-                            await _context.SaveChangesAsync();
                         }
                         else
                         {
-                            tripStatus.Status = (byte)TripStatusEnum.OnGoing;
-                            _context.TripStatuses.Add(tripStatus);
-                            await _context.SaveChangesAsync();
+                            trip.Status = (byte)TripStatusEnum.OnGoing;
                         }
                     }
+                    _context.TripStatuses.Add(tripStatus);
+                    await _context.SaveChangesAsync();
                     return _mapper.Map<TripStatusDto>(tripStatus);
+
+                    //    int? latestTripStatusOrder = await _context.TripStatuses
+                    //        .OrderBy(tripStatus => tripStatus.Id)
+                    //        .Where(tripStatus => tripStatus.TripId == trip.Id)
+                    //        .Select(tripStatus => tripStatus.StatusOrder)
+                    //        .LastOrDefaultAsync();
+                    //    if (inputDto.CountDown == null)
+                    //    {
+                    //        inputDto.CountDown = 0;
+                    //    }
+                    //    if (inputDto.CountUp == null)
+                    //    {
+                    //        inputDto.CountUp = 0;
+                    //    }
+                    //    TripStatus tripStatus = _mapper.Map<TripStatus>(inputDto);
+                    //    tripStatus.CreatedById = (short?)createdById;
+                    //    if (latestTripStatusOrder == 0)
+                    //    {
+                    //        tripStatus.StatusOrder = 1;
+                    //        tripStatus.Status = (byte)TripStatusEnum.OnGoing;
+                    //        trip.Status = (byte)TripStatusEnum.OnGoing;
+                    //        _context.TripStatuses.Add(tripStatus);
+                    //        _context.Trips.Update(trip);
+                    //        await _context.SaveChangesAsync();
+                    //    }
+                    //    else
+                    //    {
+                    //        tripStatus.StatusOrder = (byte)(latestTripStatusOrder + 1);
+                    //        short lastStationId = (short)trip.Route.RouteStations.Last().StationId;
+                    //        if(lastStationId == inputDto.StationId)
+                    //        {
+                    //            tripStatus.Status = (byte)TripStatusEnum.Finished;
+                    //            trip.Status = (byte)TripStatusEnum.Finished;
+                    //            _context.TripStatuses.Add(tripStatus);
+                    //            _context.Trips.Update(trip);
+                    //            await _context.SaveChangesAsync();
+                    //        }
+                    //        else
+                    //        {
+                    //            tripStatus.Status = (byte)TripStatusEnum.OnGoing;
+                    //            _context.TripStatuses.Add(tripStatus);
+                    //            await _context.SaveChangesAsync();
+                    //        }
+                    //    }
+                    //    return _mapper.Map<TripStatusDto>(tripStatus);
                 }
                 else
                 {

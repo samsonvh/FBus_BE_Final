@@ -95,6 +95,14 @@ namespace FBus_BE.Services.Implements
                 {
                     bus.Status = (byte)BusStatusEnum.Deleted;
                     _context.Buses.Update(bus);
+
+                    List<Trip> trips = await _context.Trips.Where(trip => trip.BusId == id && trip.Status == (byte) TripStatusEnum.Active).ToListAsync();
+                    foreach(Trip trip in trips)
+                    {
+                        trip.Status = (byte)TripStatusEnum.Inactive;
+                        _context.Trips.Update(trip);
+                    }
+
                     await _context.SaveChangesAsync();
                     return true;
                 }
@@ -137,10 +145,26 @@ namespace FBus_BE.Services.Implements
             {
                 pageRequest.OrderBy = "id";
             }
+            BusStatusEnum statusEnum = BusStatusEnum.Active;
+            bool validStatus = false;
+            if(pageRequest.Status != null)
+            {
+                switch (TextUtil.Capitalize(pageRequest.Status))
+                {
+                    case nameof(BusStatusEnum.Active):
+                        statusEnum = BusStatusEnum.Active;
+                        validStatus = true;
+                        break;
+                    case nameof(BusStatusEnum.Inactive):
+                        statusEnum = BusStatusEnum.Inactive;
+                        validStatus = true;
+                        break;
+                }
+            }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<BusListingDto> buses = new List<BusListingDto>();
             int totalCount = await _context.Buses
-                .Where(bus => !bus.Status.Equals((byte)BusStatusEnum.Deleted))
+                .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : !bus.Status.Equals((byte)BusStatusEnum.Deleted))
                 .Where(bus => (pageRequest.Code != null && pageRequest.LicensePlate != null)
                                ? bus.Code.Contains(pageRequest.Code) || bus.LicensePlate.Contains(pageRequest.LicensePlate)
                                : (pageRequest.Code != null && pageRequest.LicensePlate == null)
@@ -154,7 +178,7 @@ namespace FBus_BE.Services.Implements
                 buses = pageRequest.Direction == "desc"
                     ? await _context.Buses.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                           .Skip(skippedCount)
-                                          .Where(bus => !bus.Status.Equals((byte)BusStatusEnum.Deleted))
+                                          .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : !bus.Status.Equals((byte)BusStatusEnum.Deleted))
                                           .Where(bus => (pageRequest.Code != null && pageRequest.LicensePlate != null)
                                                          ? bus.Code.Contains(pageRequest.Code) || bus.LicensePlate.Contains(pageRequest.LicensePlate)
                                                          : (pageRequest.Code != null && pageRequest.LicensePlate == null)
@@ -166,7 +190,7 @@ namespace FBus_BE.Services.Implements
                                           .ToListAsync()
                     : await _context.Buses.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                           .Skip(skippedCount)
-                                          .Where(bus => !bus.Status.Equals((byte)BusStatusEnum.Deleted))
+                                          .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : !bus.Status.Equals((byte)BusStatusEnum.Deleted))
                                           .Where(bus => (pageRequest.Code != null && pageRequest.LicensePlate != null)
                                                          ? bus.Code.Contains(pageRequest.Code) || bus.LicensePlate.Contains(pageRequest.LicensePlate)
                                                          : (pageRequest.Code != null && pageRequest.LicensePlate == null)

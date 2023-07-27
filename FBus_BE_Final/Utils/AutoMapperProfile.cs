@@ -132,7 +132,7 @@ namespace FBus_BE.Utils
                 case (int)BusStatusEnum.Inactive:
                     return "INACTIVE";
                 case (int)BusStatusEnum.OnGoing:
-                    return "ONGOING";
+                    return "ON-GOING";
                 default:
                     return "DELETED";
             }

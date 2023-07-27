@@ -4,5 +4,6 @@
     {
         public string? Beginning { get; set; }
         public string? Destination { get; set; }
+        public string? Status { get; set; }
     }
 }

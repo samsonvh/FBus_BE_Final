@@ -32,7 +32,8 @@ namespace FBus_BE.Controllers
             try
             {
                 return Ok(await _tripService.ChangeStatus(id, status));
-            } catch(EntityNotFoundException entityNotFoundException)
+            }
+            catch (EntityNotFoundException entityNotFoundException)
             {
                 return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
@@ -49,8 +50,19 @@ namespace FBus_BE.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateWithForm([FromForm] TripInputDto inputDto)
         {
-            int userId = Convert.ToInt32(User.FindFirst("Id").Value);
-            return Ok(await _tripService.Create(userId, inputDto));
+            try
+            {
+                int userId = Convert.ToInt32(User.FindFirst("Id").Value);
+                return Ok(await _tripService.Create(userId, inputDto));
+            }
+            catch (TripDateInvalidException tripDateInvalidException)
+            {
+                return BadRequest(new ErrorDto { Title = "Invalid Date", Errors = tripDateInvalidException.Errors });
+            }
+            catch (OccupiedException occupiedException)
+            {
+                return BadRequest(new ErrorDto { Title = "Occupied", Errors = occupiedException.Errors });
+            }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
@@ -86,7 +98,7 @@ namespace FBus_BE.Controllers
                     return Ok(await _tripService.GetDetails(id));
                 }
             }
-            catch(EntityNotFoundException entityNotFoundException)
+            catch (EntityNotFoundException entityNotFoundException)
             {
                 return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
             }
@@ -128,6 +140,14 @@ namespace FBus_BE.Controllers
             catch (EntityNotFoundException entityNotFoundException)
             {
                 return BadRequest(new ErrorDto { Title = "Entity Not Found", Errors = new Dictionary<string, string>() { { "message", entityNotFoundException.InforMessage } } });
+            }
+            catch (TripDateInvalidException tripDateInvalidException)
+            {
+                return BadRequest(new ErrorDto { Title = "Invalid Date", Errors = tripDateInvalidException.Errors });
+            }
+            catch (OccupiedException occupiedException)
+            {
+                return BadRequest(new ErrorDto { Title = "Occupied", Errors = occupiedException.Errors });
             }
         }
     }
