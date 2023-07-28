@@ -45,14 +45,7 @@ namespace FBus_BE.Services.Implements
         public async Task<BusDto> GetDetails(int id)
         {
             Bus? bus = await _context.Buses
-                .Select(bus => new Bus { 
-                    LicensePlate = bus.LicensePlate,
-                    Code = bus.Code,
-                    Brand = bus.Brand,
-                    Model = bus.Model,
-                    Color = bus.Color,
-                })
-                .FirstOrDefaultAsync(bus => bus.Id == id && bus.Status == (byte)BusStatusEnum.Active && bus.Status == (byte)BusStatusEnum.Inactive);
+                .FirstOrDefaultAsync(bus => bus.Id == id && bus.Status == (byte)BusStatusEnum.Active);
             if (bus != null)
             {
                 return _mapper.Map<BusDto>(bus);
