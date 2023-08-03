@@ -210,6 +210,10 @@ namespace FBus_BE.Services.Implements
                         statusEnum = StationStatusEnum.Inactive;
                         validStatus = true;
                         break;
+                    case nameof(StationStatusEnum.Deleted):
+                        statusEnum = StationStatusEnum.Deleted;
+                        validStatus = true;
+                        break;
                 }
             }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);

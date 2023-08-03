@@ -176,6 +176,10 @@ namespace FBus_BE.Services.Implements
                         statusEnum = BusStatusEnum.Inactive;
                         validStatus = true;
                         break;
+                    case nameof(BusStatusEnum.Deleted):
+                        statusEnum = BusStatusEnum.Deleted;
+                        validStatus = true;
+                        break;
                 }
             }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
