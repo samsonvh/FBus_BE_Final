@@ -168,7 +168,7 @@ namespace FBus_BE.Services.Implements
                         statusEnum = TripStatusEnum.Deleted;
                         validStatus = true;
                         break;
-                    case nameof(TripStatusEnum.OnGoing):
+                    case "Ongoing":
                         statusEnum = TripStatusEnum.OnGoing;
                         validStatus = true;
                         break;
