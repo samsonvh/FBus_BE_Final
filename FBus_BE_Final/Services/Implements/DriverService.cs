@@ -306,7 +306,7 @@ namespace FBus_BE.Services.Implements
                 {
                     if (!errors.ContainsKey("Email"))
                     {
-                        errors.Add("Email", "Email is unavailable");
+                        errors.Add("Email", "Email is used by " + account.Code);
                     }
                 }
                 if (errors.Count == 2)
