@@ -211,12 +211,16 @@ namespace FBus_BE.Services.Implements
                         statusEnum = RouteStatusEnum.Inactive;
                         validStatus = true;
                         break;
+                    case nameof(RouteStatusEnum.Deleted):
+                        statusEnum = RouteStatusEnum.Deleted;
+                        validStatus = true;
+                        break;
                 }
             }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<RouteListingDto> routes = new List<RouteListingDto>();
             int totalCount = await _context.Routes
-                .Where(route => (validStatus) ? route.Status == (byte)statusEnum : route.Status != (byte)RouteStatusEnum.Deleted)
+                .Where(route => (validStatus) ? route.Status == (byte)statusEnum : true)
                 .Where(route => (pageRequest.Beginning != null && pageRequest.Destination != null)
                                ? route.Beginning.Contains(pageRequest.Beginning) || route.Destination.Contains(pageRequest.Destination)
                                : (pageRequest.Beginning != null && pageRequest.Destination == null)
@@ -230,7 +234,7 @@ namespace FBus_BE.Services.Implements
                 routes = pageRequest.Direction == "desc"
                     ? await _context.Routes.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                            .Skip(skippedCount)
-                                           .Where(route => (validStatus) ? route.Status == (byte)statusEnum : route.Status != (byte)RouteStatusEnum.Deleted)
+                                           .Where(route => (validStatus) ? route.Status == (byte)statusEnum : true)
                                            .Where(route => (pageRequest.Beginning != null && pageRequest.Destination != null)
                                                             ? route.Beginning.Contains(pageRequest.Beginning) || route.Destination.Contains(pageRequest.Destination)
                                                             : (pageRequest.Beginning != null && pageRequest.Destination == null)
@@ -242,7 +246,7 @@ namespace FBus_BE.Services.Implements
                                            .ToListAsync()
                     : await _context.Routes.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                            .Skip(skippedCount)
-                                           .Where(route => (validStatus) ? route.Status == (byte)statusEnum : route.Status != (byte)RouteStatusEnum.Deleted)
+                                           .Where(route => (validStatus) ? route.Status == (byte)statusEnum : true)
                                            .Where(route => (pageRequest.Beginning != null && pageRequest.Destination != null)
                                                             ? route.Beginning.Contains(pageRequest.Beginning) || route.Destination.Contains(pageRequest.Destination)
                                                             : (pageRequest.Beginning != null && pageRequest.Destination == null)
