@@ -81,6 +81,7 @@ namespace FBus_BE.Services.Implements
             if (errors.IsNullOrEmpty())
             {
                 Bus bus = _mapper.Map<Bus>(inputDto);
+                bus.Code = await CreateCode();
                 bus.CreatedById = (short?)createdById;
                 bus.Status = (byte)BusStatusEnum.Active;
                 _context.Buses.Add(bus);
@@ -265,7 +266,7 @@ namespace FBus_BE.Services.Implements
                 {
                     if (!errors.ContainsKey("LicensePlate"))
                     {
-                        errors.Add("LicensePlate", "LicensePlate is unavailable");
+                        errors.Add("LicensePlate", "LicensePlate is used by " + bus.Code);
                     }
                 }
                 if (errors.Count == 2)
@@ -295,7 +296,7 @@ namespace FBus_BE.Services.Implements
                 {
                     if (!errors.ContainsKey("LicensePlate"))
                     {
-                        errors.Add("LicensePlate", "LicensePlate is unavailable");
+                        errors.Add("LicensePlate", "LicensePlate is used by " + bus.Code);
                     }
                 }
                 if (errors.Count == 2)
