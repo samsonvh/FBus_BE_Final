@@ -249,18 +249,18 @@ namespace FBus_BE.Services.Implements
         private async Task CheckCreateDuplicate(BusInputDto inputDto)
         {
             List<Bus> buses = await _context.Buses
-                .Where(bus => bus.Code == inputDto.Code || bus.LicensePlate == inputDto.LicensePlate)
+                .Where(bus => bus.LicensePlate == inputDto.LicensePlate)
                 .Select(bus => new Bus { Code = bus.Code, LicensePlate = bus.LicensePlate })
                 .ToListAsync();
             foreach (Bus bus in buses)
             {
-                if (bus.Code == inputDto.Code)
-                {
-                    if (!errors.ContainsKey("Code"))
-                    {
-                        errors.Add("Code", "Code is unavailable");
-                    }
-                }
+                //if (bus.Code == inputDto.Code)
+                //{
+                //    if (!errors.ContainsKey("Code"))
+                //    {
+                //        errors.Add("Code", "Code is unavailable");
+                //    }
+                //}
                 if (bus.LicensePlate == inputDto.LicensePlate)
                 {
                     if (!errors.ContainsKey("LicensePlate"))
@@ -279,7 +279,7 @@ namespace FBus_BE.Services.Implements
         {
             List<Bus> buses = await _context.Buses
                 .Where(bus => bus.Id != id)
-                .Where(bus => bus.Code == inputDto.Code || bus.LicensePlate == inputDto.LicensePlate)
+                .Where(bus => bus.LicensePlate == inputDto.LicensePlate)
                 .Select(bus => new Bus { Code = bus.Code, LicensePlate = bus.LicensePlate })
                 .ToListAsync();
             foreach (Bus bus in buses)
