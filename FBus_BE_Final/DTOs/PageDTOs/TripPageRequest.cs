@@ -2,5 +2,6 @@
 {
     public class TripPageRequest : DefaultPageRequest
     {
+        public string? Status { get; set; }
     }
 }
