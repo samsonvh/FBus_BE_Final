@@ -23,6 +23,7 @@ namespace FBus_BE.DTOs.InputDTOs
         public string Color { get; set; }
         [Required]
         public byte Seat { get; set; }
+        [Required]
         public DateTime? DateOfRegistration { get; set; }
     }
 }
