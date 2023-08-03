@@ -9,7 +9,9 @@ using FBus_BE.Models;
 using FBus_BE.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using Route = FBus_BE.Models.Route;
 
 namespace FBus_BE.Services.Implements
 {
@@ -40,6 +42,23 @@ namespace FBus_BE.Services.Implements
             {
                 if (station.Status != (byte)StationStatusEnum.Deleted)
                 {
+                    List<RouteStation> routeStations = await _context.RouteStations
+                        .Where(routeStation => routeStation.StationId == id)
+                        .ToListAsync();
+                    List<Int32> routeIds = new List<int>();
+                    foreach (RouteStation routeStation in routeStations)
+                    {
+                        routeIds.Add((int)routeStation.RouteId);
+                    }
+                    int onGoingTrips = 0;
+                    foreach (int routeId in routeIds)
+                    {
+                        int onGoingRoutes = await _context.Trips.Where(trip => trip.RouteId == routeId).CountAsync();
+                        if (onGoingRoutes > 0)
+                        {
+                            onGoingTrips++;
+                        }
+                    }
                     status = TextUtil.Capitalize(status);
                     StationStatusEnum statusEnum;
                     switch (status)
@@ -48,8 +67,15 @@ namespace FBus_BE.Services.Implements
                             statusEnum = StationStatusEnum.Active;
                             break;
                         case nameof(StationStatusEnum.Inactive):
-                            statusEnum = StationStatusEnum.Inactive;
-                            break;
+                            if (onGoingTrips > 0)
+                            {
+                                return false;
+                            }
+                            else
+                            {
+                                statusEnum = StationStatusEnum.Inactive;
+                                break;
+                            }
                         default:
                             return false;
                     }
@@ -100,10 +126,34 @@ namespace FBus_BE.Services.Implements
             {
                 if (station.Status != (byte)StationStatusEnum.Deleted)
                 {
-                    station.Status = (byte)StationStatusEnum.Deleted;
-                    _context.Stations.Update(station);
-                    await _context.SaveChangesAsync();
-                    return true;
+                    List<RouteStation> routeStations = await _context.RouteStations
+                        .Where(routeStation => routeStation.StationId == id)
+                        .ToListAsync();
+                    List<Int32> routeIds = new List<int>();
+                    foreach (RouteStation routeStation in routeStations)
+                    {
+                        routeIds.Add((int)routeStation.RouteId);
+                    }
+                    int onGoingTrips = 0;
+                    foreach (int routeId in routeIds)
+                    {
+                        int onGoingRoutes = await _context.Trips.Where(trip => trip.RouteId == routeId).CountAsync();
+                        if (onGoingRoutes > 0)
+                        {
+                            onGoingTrips++;
+                        }
+                    }
+                    if (onGoingTrips > 0)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        station.Status = (byte)StationStatusEnum.Deleted;
+                        _context.Stations.Update(station);
+                        await _context.SaveChangesAsync();
+                        return true;
+                    }
                 }
                 else
                 {
@@ -165,7 +215,7 @@ namespace FBus_BE.Services.Implements
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<StationListingDto> stations = new List<StationListingDto>();
             int totalCount = await _context.Stations
-                .Where(station => (validStatus) ? station.Status == (byte)statusEnum : station.Status != (byte)StationStatusEnum.Deleted)
+                .Where(station => (validStatus) ? station.Status == (byte)statusEnum : true)
                 .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
                 .CountAsync();
             if (totalCount > 0)
@@ -173,13 +223,13 @@ namespace FBus_BE.Services.Implements
                 stations = pageRequest.Direction == "desc"
                     ? await _context.Stations.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
-                                             .Where(station => (validStatus) ? station.Status == (byte)statusEnum : station.Status != (byte)StationStatusEnum.Deleted)
+                                             .Where(station => (validStatus) ? station.Status == (byte)statusEnum : true)
                                              .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
                                              .Select(station => _mapper.Map<StationListingDto>(station))
                                              .ToListAsync()
                     : await _context.Stations.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
-                                             .Where(station => (validStatus) ? station.Status == (byte)statusEnum : station.Status != (byte)StationStatusEnum.Deleted)
+                                             .Where(station => (validStatus) ? station.Status == (byte)statusEnum : true)
                                              .Where(station => pageRequest.Code != null ? station.Code.Contains(pageRequest.Code) : true)
                                              .Select(station => _mapper.Map<StationListingDto>(station))
                                              .ToListAsync();
@@ -199,6 +249,13 @@ namespace FBus_BE.Services.Implements
             if (station == null)
             {
                 throw new EntityNotFoundException("Station", id);
+            }
+            else
+            {
+                if (station.Status == (byte)StationStatusEnum.Deleted)
+                {
+                    return null;
+                }
             }
             await CheckUpdateDuplicate(id, inputDto);
             if (errors.IsNullOrEmpty())

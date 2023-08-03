@@ -38,6 +38,7 @@ namespace FBus_BE.Services.Implements
             {
                 if (bus.Status != (byte)BusStatusEnum.Deleted && bus.Status != (byte)BusStatusEnum.OnGoing)
                 {
+                    int onGoingTrips = await _context.Trips.Where(trip => trip.BusId == id).CountAsync();
                     status = TextUtil.Capitalize(status);
                     BusStatusEnum statusEnum;
                     switch (status)
@@ -46,8 +47,15 @@ namespace FBus_BE.Services.Implements
                             statusEnum = BusStatusEnum.Active;
                             break;
                         case nameof(BusStatusEnum.Inactive):
-                            statusEnum = BusStatusEnum.Inactive;
-                            break;
+                            if (onGoingTrips > 0)
+                            {
+                                return false;
+                            }
+                            else
+                            {
+                                statusEnum = BusStatusEnum.Inactive;
+                                break;
+                            }
                         default:
                             return false;
                     }
@@ -93,18 +101,26 @@ namespace FBus_BE.Services.Implements
             {
                 if (bus.Status != (byte)BusStatusEnum.Deleted && bus.Status != (byte)BusStatusEnum.OnGoing)
                 {
-                    bus.Status = (byte)BusStatusEnum.Deleted;
-                    _context.Buses.Update(bus);
-
-                    List<Trip> trips = await _context.Trips.Where(trip => trip.BusId == id && trip.Status == (byte) TripStatusEnum.Active).ToListAsync();
-                    foreach(Trip trip in trips)
+                    int onGoingTrips = await _context.Trips.Where(trip => trip.BusId == id).CountAsync();
+                    if (onGoingTrips > 0)
                     {
-                        trip.Status = (byte)TripStatusEnum.Inactive;
-                        _context.Trips.Update(trip);
+                        return false;
                     }
+                    else
+                    {
+                        bus.Status = (byte)BusStatusEnum.Deleted;
+                        _context.Buses.Update(bus);
 
-                    await _context.SaveChangesAsync();
-                    return true;
+                        List<Trip> trips = await _context.Trips.Where(trip => trip.BusId == id && trip.Status == (byte)TripStatusEnum.Active).ToListAsync();
+                        foreach (Trip trip in trips)
+                        {
+                            trip.Status = (byte)TripStatusEnum.Inactive;
+                            _context.Trips.Update(trip);
+                        }
+
+                        await _context.SaveChangesAsync();
+                        return true;
+                    }
                 }
                 else
                 {
@@ -147,7 +163,7 @@ namespace FBus_BE.Services.Implements
             }
             BusStatusEnum statusEnum = BusStatusEnum.Active;
             bool validStatus = false;
-            if(pageRequest.Status != null)
+            if (pageRequest.Status != null)
             {
                 switch (TextUtil.Capitalize(pageRequest.Status))
                 {
@@ -164,7 +180,7 @@ namespace FBus_BE.Services.Implements
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<BusListingDto> buses = new List<BusListingDto>();
             int totalCount = await _context.Buses
-                .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : !bus.Status.Equals((byte)BusStatusEnum.Deleted))
+                .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : true)
                 .Where(bus => (pageRequest.Code != null && pageRequest.LicensePlate != null)
                                ? bus.Code.Contains(pageRequest.Code) || bus.LicensePlate.Contains(pageRequest.LicensePlate)
                                : (pageRequest.Code != null && pageRequest.LicensePlate == null)
@@ -178,7 +194,7 @@ namespace FBus_BE.Services.Implements
                 buses = pageRequest.Direction == "desc"
                     ? await _context.Buses.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                           .Skip(skippedCount)
-                                          .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : !bus.Status.Equals((byte)BusStatusEnum.Deleted))
+                                          .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : true)
                                           .Where(bus => (pageRequest.Code != null && pageRequest.LicensePlate != null)
                                                          ? bus.Code.Contains(pageRequest.Code) || bus.LicensePlate.Contains(pageRequest.LicensePlate)
                                                          : (pageRequest.Code != null && pageRequest.LicensePlate == null)
@@ -190,7 +206,7 @@ namespace FBus_BE.Services.Implements
                                           .ToListAsync()
                     : await _context.Buses.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                           .Skip(skippedCount)
-                                          .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : !bus.Status.Equals((byte)BusStatusEnum.Deleted))
+                                          .Where(bus => (validStatus) ? bus.Status == (byte)statusEnum : true)
                                           .Where(bus => (pageRequest.Code != null && pageRequest.LicensePlate != null)
                                                          ? bus.Code.Contains(pageRequest.Code) || bus.LicensePlate.Contains(pageRequest.LicensePlate)
                                                          : (pageRequest.Code != null && pageRequest.LicensePlate == null)
@@ -287,6 +303,15 @@ namespace FBus_BE.Services.Implements
                     break;
                 }
             }
+        }
+
+        private async Task<string> CreateCode()
+        {
+            string code = "FBUS";
+            int countCode = await _context.Buses.CountAsync();
+            countCode += 1;
+            code += countCode;
+            return code;
         }
     }
 }
