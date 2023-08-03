@@ -5,10 +5,6 @@ namespace FBus_BE.DTOs.InputDTOs
     public class BusInputDto
     {
         [Required]
-        [MaxLength(10)]
-        [MinLength(6)]
-        public string Code { get; set; }
-        [Required]
         [MaxLength(9)]
         [MinLength(6)]
         [RegularExpression("^\\d{2}[A-Z]\\d{4,6}", ErrorMessage = "LicensePlate must follow format. For example: 01A012345")]

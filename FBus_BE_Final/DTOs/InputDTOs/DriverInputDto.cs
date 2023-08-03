@@ -9,10 +9,6 @@ namespace FBus_BE.DTOs.InputDTOs
         [RegularExpression("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+[.][a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9]+)*$", ErrorMessage = "Email must be in valid format")]
         public string? Email { get; set; }
         [Required]
-        [MaxLength(20)]
-        [MinLength(3)]
-        public string Code { get; set; }
-        [Required]
         [MaxLength(50)]
         [MinLength(3)]
         public string FullName { get; set; }
