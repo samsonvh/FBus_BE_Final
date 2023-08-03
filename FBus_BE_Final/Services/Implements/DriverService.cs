@@ -35,11 +35,14 @@ namespace FBus_BE.Services.Implements
 
         public async Task<bool> ChangeStatus(int id, string status)
         {
-            Driver? driver = await _context.Drivers.Include(driver => driver.Account).FirstOrDefaultAsync(driver => driver.Id == id);
+            Driver? driver = await _context.Drivers
+                .Include(driver => driver.Account)
+                .FirstOrDefaultAsync(driver => driver.Id == id);
             if (driver != null)
             {
                 if (driver.Status != (byte)DriverStatusEnum.Deleted)
                 {
+                    int onGoingTrips = await _context.Trips.Where(trip => trip.DriverId == id).CountAsync();
                     status = TextUtil.Capitalize(status);
                     DriverStatusEnum statusEnum;
                     switch (status)
@@ -48,8 +51,15 @@ namespace FBus_BE.Services.Implements
                             statusEnum = DriverStatusEnum.Active;
                             break;
                         case nameof(DriverStatusEnum.Inactive):
-                            statusEnum = DriverStatusEnum.Inactive;
-                            break;
+                            if (onGoingTrips > 0)
+                            {
+                                return false;
+                            }
+                            else
+                            {
+                                statusEnum = DriverStatusEnum.Inactive;
+                                break;
+                            }
                         default:
                             return false;
                     }
@@ -59,7 +69,8 @@ namespace FBus_BE.Services.Implements
                     _context.Drivers.Update(driver);
                     await _context.SaveChangesAsync();
                     return true;
-                } else
+                }
+                else
                 {
                     return false;
                 }
@@ -78,7 +89,7 @@ namespace FBus_BE.Services.Implements
                 Account account = new Account
                 {
                     Email = inputDto.Email,
-                    Code = inputDto.Code,
+                    Code = await CreateCode(inputDto.FullName),
                     Role = nameof(RoleEnum.Driver),
                     Status = (byte)AccountStatusEnum.Unsigned,
                 };
@@ -115,12 +126,20 @@ namespace FBus_BE.Services.Implements
             {
                 if (driver.Status != (byte)DriverStatusEnum.Deleted)
                 {
-                    driver.Account.Status = (byte)DriverStatusEnum.Deleted;
-                    driver.Status = (byte)DriverStatusEnum.Deleted;
-                    _context.Accounts.Update(driver.Account);
-                    _context.Drivers.Update(driver);
-                    await _context.SaveChangesAsync();
-                    return true;
+                    int onGoingTrips = await _context.Trips.Where(trip => trip.DriverId == id).CountAsync();
+                    if (onGoingTrips > 0)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        driver.Account.Status = (byte)DriverStatusEnum.Deleted;
+                        driver.Status = (byte)DriverStatusEnum.Deleted;
+                        _context.Accounts.Update(driver.Account);
+                        _context.Drivers.Update(driver);
+                        await _context.SaveChangesAsync();
+                        return true;
+                    }
                 }
                 else
                 {
@@ -138,7 +157,7 @@ namespace FBus_BE.Services.Implements
             Driver? driver = await _context.Drivers
                 .Include(driver => driver.Account)
                 .Include(driver => driver.CreatedBy)
-                .FirstOrDefaultAsync(driver => driver.Id == id && driver.Status != (byte)DriverStatusEnum.Deleted);
+                .FirstOrDefaultAsync(driver => driver.Id == id);
             return _mapper.Map<DriverDto>(driver);
         }
 
@@ -159,9 +178,9 @@ namespace FBus_BE.Services.Implements
             }
             DriverStatusEnum statusEnum = DriverStatusEnum.Active;
             bool validStatus = false;
-            if(pageRequest.Status != null)
+            if (pageRequest.Status != null)
             {
-                switch(TextUtil.Capitalize(pageRequest.Status))
+                switch (TextUtil.Capitalize(pageRequest.Status))
                 {
                     case nameof(DriverStatusEnum.Active):
                         statusEnum = DriverStatusEnum.Active;
@@ -176,7 +195,7 @@ namespace FBus_BE.Services.Implements
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<DriverListingDto> drivers = new List<DriverListingDto>();
             int totalCount = await _context.Drivers
-                .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : !driver.Status.Equals((int)DriverStatusEnum.Deleted))
+                .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : true)
                 .Where(driver => pageRequest.Code != null && pageRequest.Email != null
                                   ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
                                   : pageRequest.Code != null && pageRequest.Email == null
@@ -191,7 +210,7 @@ namespace FBus_BE.Services.Implements
                     ? await _context.Drivers.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                             .Skip(skippedCount)
                                             .Include(driver => driver.Account)
-                                            .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : !driver.Status.Equals((int)DriverStatusEnum.Deleted))
+                                            .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : true)
                                             .Where(driver => pageRequest.Code != null && pageRequest.Email != null
                                                               ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
                                                               : pageRequest.Code != null && pageRequest.Email == null
@@ -204,7 +223,7 @@ namespace FBus_BE.Services.Implements
                     : await _context.Drivers.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                             .Skip(skippedCount)
                                             .Include(driver => driver.Account)
-                                            .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : !driver.Status.Equals((int)DriverStatusEnum.Deleted))
+                                            .Where(driver => (validStatus) ? driver.Status == (byte)statusEnum : true)
                                             .Where(driver => pageRequest.Code != null && pageRequest.Email != null
                                                               ? driver.Account.Code.Contains(pageRequest.Code) || driver.Account.Email.Contains(pageRequest.Email)
                                                               : pageRequest.Code != null && pageRequest.Email == null
@@ -249,7 +268,7 @@ namespace FBus_BE.Services.Implements
                 {
                     if (driver.Avatar != null)
                     {
-                        string fileName = driver.Avatar.Substring(driver.Avatar.LastIndexOf('/') + 1).Replace("?alt=media", "").Replace("%2F","/");
+                        string fileName = driver.Avatar.Substring(driver.Avatar.LastIndexOf('/') + 1).Replace("?alt=media", "").Replace("%2F", "/");
                         await _storageService.DeleteFile(fileName);
                     }
 
@@ -354,6 +373,7 @@ namespace FBus_BE.Services.Implements
             }
 
             List<Driver> drivers = await _context.Drivers
+                .Include(driver => driver.Account)
                 .Where(driver => driver.Id != currentDriver.Id)
                 .Where(driver => (inputDto.PersonalEmail != null ? driver.PersonalEmail == inputDto.PersonalEmail : true) ||
                                  (driver.PhoneNumber == inputDto.PhoneNumber) || (driver.IdCardNumber == inputDto.IdCardNumber))
@@ -365,21 +385,21 @@ namespace FBus_BE.Services.Implements
                 {
                     if (!errors.ContainsKey("personalEmail"))
                     {
-                        errors.Add("personalEmail", "PersonalEmail is unavailable");
+                        errors.Add("personalEmail", "PersonalEmail is unavailable " + driver.Account.Code);
                     }
                 }
                 if (driver.PhoneNumber == inputDto.PhoneNumber)
                 {
                     if (!errors.ContainsKey("phoneNumber"))
                     {
-                        errors.Add("phoneNumber", "PhoneNumber is unavailable");
+                        errors.Add("phoneNumber", "PhoneNumber is unavailable " + driver.Account.Code);
                     }
                 }
                 if (driver.IdCardNumber == inputDto.IdCardNumber)
                 {
                     if (!errors.ContainsKey("idCardNumber"))
                     {
-                        errors.Add("idCardNumber", "IdCardNumber is unavailable");
+                        errors.Add("idCardNumber", "IdCardNumber is unavailable " + driver.Account.Code);
                     }
                 }
                 if (errors.Count == 3)
@@ -387,6 +407,28 @@ namespace FBus_BE.Services.Implements
                     break;
                 }
             }
+        }
+
+        private async Task<string> CreateCode(string fullname)
+        {
+            string code = "";
+            string[] nameElements = fullname.Split(' ');
+            code += nameElements[nameElements.Length - 1].ToLower();
+            for (int i = 0; i < nameElements.Length - 1; i++)
+            {
+                if(i == nameElements.Length - 1)
+                {
+                    break;
+                }
+                code += nameElements[i].ToLower().ToCharArray()[0];
+            }
+            int countCode = await _context.Accounts.Where(account => account.Code.StartsWith(code)).CountAsync();
+            if (countCode > 0)
+            {
+                countCode += 1;
+                code += countCode;
+            }
+            return code;
         }
     }
 }

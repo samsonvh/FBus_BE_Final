@@ -35,7 +35,7 @@ namespace FBus_BE.Services.Implements
 
         public async Task<TripStatusDto> Create(int createdById, TripStatusInputDto inputDto)
         {
-            Trip trip = await _context.Trips
+            Trip? trip = await _context.Trips
                 .Include(trip => trip.Driver)
                 .Include(trip => trip.Route).ThenInclude(route => route.RouteStations)
                 .FirstOrDefaultAsync(trip => trip.Id == inputDto.TripId);
@@ -43,58 +43,59 @@ namespace FBus_BE.Services.Implements
             {
                 if (trip.Driver.AccountId == createdById && trip.Status != (byte)TripStatusEnum.Finished)
                 {
-                    int latestTripStatusOrder = await _context.TripStatuses
-                        .OrderBy(tripStatus => tripStatus.Id)
-                        .Where(tripStatus => tripStatus.TripId == trip.Id)
-                        .Select(tripStatus => tripStatus.StatusOrder)
-                        .LastOrDefaultAsync();
-                    if (inputDto.CountDown == null)
+                    int onGoingTrips = await _context.Trips
+                        .Where(trip => trip.Id != inputDto.TripId && trip.Driver.AccountId == createdById && trip.Status == (byte)TripStatusEnum.OnGoing)
+                        .CountAsync();
+                    if (onGoingTrips > 0)
                     {
-                        inputDto.CountDown = 0;
-                    }
-                    if (inputDto.CountUp == null)
-                    {
-                        inputDto.CountUp = 0;
-                    }
-                    if (inputDto.IsFinished == null)
-                    {
-                        inputDto.IsFinished = false;
-
-                        Trip? onGoingTrip = await _context.Trips
-                            .Include(trip => trip.Driver)
-                            .Where(trip => trip.Driver.AccountId == createdById && trip.Status == (byte)TripStatusEnum.OnGoing)
-                            .FirstOrDefaultAsync();
-                        if(onGoingTrip != null)
-                        {
-                            return null;
-                        }
-                    }
-                    TripStatus tripStatus = _mapper.Map<TripStatus>(inputDto);
-                    tripStatus.CreatedById = (short?)createdById;
-                    if (latestTripStatusOrder == 0)
-                    {
-                        tripStatus.StatusOrder = 1;
-                        tripStatus.Status = (byte)TripStatusEnum.OnGoing;
-                        trip.Status = (byte)TripStatusEnum.OnGoing;
-                        _context.Trips.Update(trip);
+                        return null;
                     }
                     else
                     {
-                        tripStatus.StatusOrder = (byte)(latestTripStatusOrder + 1);
-                        if ((bool)inputDto.IsFinished)
+                        int latestTripStatusOrder = await _context.TripStatuses
+                            .OrderBy(tripStatus => tripStatus.Id)
+                            .Where(tripStatus => tripStatus.TripId == trip.Id)
+                            .Select(tripStatus => tripStatus.StatusOrder)
+                            .LastOrDefaultAsync();
+                        if (inputDto.CountDown == null)
                         {
-                            tripStatus.Status = (byte)TripStatusEnum.Finished;
-                            trip.Status = (byte)TripStatusEnum.Finished;
+                            inputDto.CountDown = 0;
+                        }
+                        if (inputDto.CountUp == null)
+                        {
+                            inputDto.CountUp = 0;
+                        }
+                        if (inputDto.IsFinished == null)
+                        {
+                            inputDto.IsFinished = false;
+                        }
+                        TripStatus tripStatus = _mapper.Map<TripStatus>(inputDto);
+                        tripStatus.CreatedById = (short?)createdById;
+                        if (latestTripStatusOrder == 0)
+                        {
+                            tripStatus.StatusOrder = 1;
+                            tripStatus.Status = (byte)TripStatusEnum.OnGoing;
+                            trip.Status = (byte)TripStatusEnum.OnGoing;
                             _context.Trips.Update(trip);
                         }
                         else
                         {
-                            trip.Status = (byte)TripStatusEnum.OnGoing;
+                            tripStatus.StatusOrder = (byte)(latestTripStatusOrder + 1);
+                            if ((bool)inputDto.IsFinished)
+                            {
+                                tripStatus.Status = (byte)TripStatusEnum.Finished;
+                                trip.Status = (byte)TripStatusEnum.Finished;
+                                _context.Trips.Update(trip);
+                            }
+                            else
+                            {
+                                trip.Status = (byte)TripStatusEnum.OnGoing;
+                            }
                         }
+                        _context.TripStatuses.Add(tripStatus);
+                        await _context.SaveChangesAsync();
+                        return _mapper.Map<TripStatusDto>(tripStatus);
                     }
-                    _context.TripStatuses.Add(tripStatus);
-                    await _context.SaveChangesAsync();
-                    return _mapper.Map<TripStatusDto>(tripStatus);
 
                     //    int? latestTripStatusOrder = await _context.TripStatuses
                     //        .OrderBy(tripStatus => tripStatus.Id)

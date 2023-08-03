@@ -41,18 +41,25 @@ namespace FBus_BE.Services.Implements
             {
                 if (trip.Status != (byte)TripStatusEnum.Deleted && trip.Status != (byte)TripStatusEnum.OnGoing && trip.Status != (byte)TripStatusEnum.Finished)
                 {
-                    if (trip.Route.Status == (byte)RouteStatusEnum.Deleted || trip.Bus.Status == (byte)RouteStatusEnum.Deleted || trip.Driver.Status == (byte)DriverStatusEnum.Deleted)
-                    {
-                        return false;
-                    }
 
                     status = TextUtil.Capitalize(status);
                     TripStatusEnum tripStatusEnum;
                     switch (status)
                     {
                         case nameof(TripStatusEnum.Active):
-                            tripStatusEnum = TripStatusEnum.Active;
-                            break;
+                            if (trip.Route.Status == (byte)RouteStatusEnum.Deleted
+                                || trip.Bus.Status == (byte)RouteStatusEnum.Deleted
+                                || trip.Driver.Status == (byte)DriverStatusEnum.Deleted
+                                || trip.Route.Status == (byte)DriverStatusEnum.Inactive
+                                || trip.Bus.Status == (byte)DriverStatusEnum.Inactive
+                                || trip.Driver.Status == (byte)DriverStatusEnum.Inactive)
+                            {
+                                return false;
+                            } else
+                            {
+                                tripStatusEnum = TripStatusEnum.Active;
+                                break;
+                            }
                         case nameof(TripStatusEnum.Inactive):
                             tripStatusEnum = TripStatusEnum.Inactive;
                             break;
