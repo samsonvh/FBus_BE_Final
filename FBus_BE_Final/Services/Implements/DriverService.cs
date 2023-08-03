@@ -104,7 +104,7 @@ namespace FBus_BE.Services.Implements
                 Uri avatarUri;
                 if (inputDto.AvatarFile != null)
                 {
-                    avatarUri = await _storageService.UploadFile(inputDto.Code, inputDto.AvatarFile, "avatars");
+                    avatarUri = await _storageService.UploadFile(account.Code, inputDto.AvatarFile, "avatars");
                     driver.Avatar = cloudStoragePrefix + avatarUri.AbsolutePath.Substring(avatarUri.AbsolutePath.LastIndexOf('/') + 1) + "?alt=media";
                 }
 
@@ -256,7 +256,6 @@ namespace FBus_BE.Services.Implements
             if (errors.IsNullOrEmpty())
             {
                 Account account = driver.Account;
-                account.Code = inputDto.Code;
 
                 _context.Accounts.Update(account);
                 await _context.SaveChangesAsync();
@@ -272,7 +271,7 @@ namespace FBus_BE.Services.Implements
                         await _storageService.DeleteFile(fileName);
                     }
 
-                    avatarUri = await _storageService.UploadFile(inputDto.Code, inputDto.AvatarFile, "avatars");
+                    avatarUri = await _storageService.UploadFile(account.Code, inputDto.AvatarFile, "avatars");
                     driver.Avatar = cloudStoragePrefix + avatarUri.AbsolutePath.Substring(avatarUri.AbsolutePath.LastIndexOf('/') + 1) + "?alt=media";
                 }
 
@@ -290,7 +289,7 @@ namespace FBus_BE.Services.Implements
         private async Task CheckCreateDuplicate(DriverInputDto inputDto)
         {
             List<Account> accounts = await _context.Accounts
-                .Where(account => account.Code == inputDto.Code || account.Email == inputDto.Email)
+                .Where(account => account.Email == inputDto.Email)
                 .Select(account => new Account { Email = account.Email, Code = account.Code })
                 .ToListAsync();
             foreach (Account account in accounts)
@@ -354,7 +353,6 @@ namespace FBus_BE.Services.Implements
         {
             List<Account> accounts = await _context.Accounts
                 .Where(account => account.Id != currentDriver.AccountId)
-                .Where(account => account.Code == inputDto.Code)
                 .Select(account => new Account { Code = account.Code })
                 .ToListAsync();
             //foreach (Account account in accounts)
