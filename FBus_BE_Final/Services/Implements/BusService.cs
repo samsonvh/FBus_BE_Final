@@ -284,13 +284,13 @@ namespace FBus_BE.Services.Implements
                 .ToListAsync();
             foreach (Bus bus in buses)
             {
-                if (bus.Code == inputDto.Code)
-                {
-                    if (!errors.ContainsKey("Code"))
-                    {
-                        errors.Add("Code", "Code is unavailable");
-                    }
-                }
+                //if (bus.Code == inputDto.Code)
+                //{
+                //    if (!errors.ContainsKey("Code"))
+                //    {
+                //        errors.Add("Code", "Code is unavailable");
+                //    }
+                //}
                 if (bus.LicensePlate == inputDto.LicensePlate)
                 {
                     if (!errors.ContainsKey("LicensePlate"))
