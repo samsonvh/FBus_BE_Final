@@ -295,13 +295,13 @@ namespace FBus_BE.Services.Implements
                 .ToListAsync();
             foreach (Account account in accounts)
             {
-                if (account.Code == inputDto.Code)
-                {
-                    if (!errors.ContainsKey("Code"))
-                    {
-                        errors.Add("Code", "Code is unavailable");
-                    }
-                }
+                //if (account.Code == inputDto.Code)
+                //{
+                //    if (!errors.ContainsKey("Code"))
+                //    {
+                //        errors.Add("Code", "Code is unavailable");
+                //    }
+                //}
                 if (account.Email == inputDto.Email)
                 {
                     if (!errors.ContainsKey("Email"))
@@ -326,21 +326,21 @@ namespace FBus_BE.Services.Implements
                 {
                     if (!errors.ContainsKey("PersonalEmail"))
                     {
-                        errors.Add("PersonalEmail", "PersonalEmail is unavailable");
+                        errors.Add("PersonalEmail", "PersonalEmail is used by " + driver.Account.Code);
                     }
                 }
                 if (driver.PhoneNumber == inputDto.PhoneNumber)
                 {
                     if (!errors.ContainsKey("PhoneNumber"))
                     {
-                        errors.Add("PhoneNumber", "PhoneNumber is unavailable");
+                        errors.Add("PhoneNumber", "PhoneNumber is used by " + driver.Account.Code);
                     }
                 }
                 if (driver.IdCardNumber == inputDto.IdCardNumber)
                 {
                     if (!errors.ContainsKey("idCardNumber"))
                     {
-                        errors.Add("IdCardNumber", "IdCardNumber is unavailable");
+                        errors.Add("IdCardNumber", "IdCardNumber is used by " + driver.Account.Code);
                     }
                 }
                 if (errors.Count == 3)
@@ -357,20 +357,20 @@ namespace FBus_BE.Services.Implements
                 .Where(account => account.Code == inputDto.Code)
                 .Select(account => new Account { Code = account.Code })
                 .ToListAsync();
-            foreach (Account account in accounts)
-            {
-                if (account.Code == inputDto.Code)
-                {
-                    if (!errors.ContainsKey("code"))
-                    {
-                        errors.Add("code", "Code is unavailable");
-                    }
-                }
-                if (errors.Count == 2)
-                {
-                    break;
-                }
-            }
+            //foreach (Account account in accounts)
+            //{
+            //    if (account.Code == inputDto.Code)
+            //    {
+            //        if (!errors.ContainsKey("code"))
+            //        {
+            //            errors.Add("code", "Code is unavailable");
+            //        }
+            //    }
+            //    if (errors.Count == 2)
+            //    {
+            //        break;
+            //    }
+            //}
 
             List<Driver> drivers = await _context.Drivers
                 .Include(driver => driver.Account)
@@ -385,21 +385,21 @@ namespace FBus_BE.Services.Implements
                 {
                     if (!errors.ContainsKey("personalEmail"))
                     {
-                        errors.Add("personalEmail", "PersonalEmail is unavailable " + driver.Account.Code);
+                        errors.Add("personalEmail", "PersonalEmail is used by " + driver.Account.Code);
                     }
                 }
                 if (driver.PhoneNumber == inputDto.PhoneNumber)
                 {
                     if (!errors.ContainsKey("phoneNumber"))
                     {
-                        errors.Add("phoneNumber", "PhoneNumber is unavailable " + driver.Account.Code);
+                        errors.Add("phoneNumber", "PhoneNumber is used by " + driver.Account.Code);
                     }
                 }
                 if (driver.IdCardNumber == inputDto.IdCardNumber)
                 {
                     if (!errors.ContainsKey("idCardNumber"))
                     {
-                        errors.Add("idCardNumber", "IdCardNumber is unavailable " + driver.Account.Code);
+                        errors.Add("idCardNumber", "IdCardNumber is used by " + driver.Account.Code);
                     }
                 }
                 if (errors.Count == 3)
