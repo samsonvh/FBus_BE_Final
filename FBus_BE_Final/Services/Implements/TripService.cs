@@ -55,7 +55,8 @@ namespace FBus_BE.Services.Implements
                                 || trip.Driver.Status == (byte)DriverStatusEnum.Inactive)
                             {
                                 return false;
-                            } else
+                            }
+                            else
                             {
                                 tripStatusEnum = TripStatusEnum.Active;
                                 break;
@@ -149,21 +150,49 @@ namespace FBus_BE.Services.Implements
             {
                 pageRequest.OrderBy = "id";
             }
+            TripStatusEnum statusEnum = TripStatusEnum.Active;
+            bool validStatus = false;
+            if (pageRequest.Status != null)
+            {
+                switch (TextUtil.Capitalize(pageRequest.Status))
+                {
+                    case nameof(TripStatusEnum.Active):
+                        statusEnum = TripStatusEnum.Active;
+                        validStatus = true;
+                        break;
+                    case nameof(TripStatusEnum.Inactive):
+                        statusEnum = TripStatusEnum.Inactive;
+                        validStatus = true;
+                        break;
+                    case nameof(TripStatusEnum.Deleted):
+                        statusEnum = TripStatusEnum.Deleted;
+                        validStatus = true;
+                        break;
+                    case nameof(TripStatusEnum.OnGoing):
+                        statusEnum = TripStatusEnum.OnGoing;
+                        validStatus = true;
+                        break;
+                    case nameof(TripStatusEnum.Finished):
+                        statusEnum = TripStatusEnum.Finished;
+                        validStatus = true;
+                        break;
+                }
+            }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<TripDto> trips = new List<TripDto>();
             int totalCount = await _context.Trips
-                .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
+                .Where(trip => (validStatus) ? trip.Status == (byte)statusEnum : true)
                 .CountAsync();
             if (totalCount > 0)
             {
                 trips = await _context.Trips.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                     .Skip(skippedCount)
-                    .Where(trip => trip.Status != (byte)TripStatusEnum.Deleted)
                     .Include(trip => trip.Driver).ThenInclude(driver => driver.CreatedBy)
                     .Include(trip => trip.Driver).ThenInclude(driver => driver.Account)
                     .Include(trip => trip.Bus).ThenInclude(bus => bus.CreatedBy)
                     .Include(trip => trip.Route).ThenInclude(route => route.CreatedBy)
                     .Include(trip => trip.CreatedBy)
+                    .Where(station => (validStatus) ? station.Status == (byte)statusEnum : true)
                     .Select(trip => _mapper.Map<TripDto>(trip))
                     .ToListAsync();
             }
