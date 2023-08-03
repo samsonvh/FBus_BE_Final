@@ -63,7 +63,6 @@ namespace FBus_BE.Services.Implements
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<AccountDto> accounts = new List<AccountDto>();
             int totalCount = await _context.Accounts
-                .Where(account => !account.Status.Equals((int)AccountStatusEnum.Deleted))
                 .Where(account => pageRequest.Code != null && pageRequest.Email != null
                                   ? account.Code.Contains(pageRequest.Code) || account.Email.Contains(pageRequest.Email)
                                   : pageRequest.Code != null && pageRequest.Email == null
@@ -77,7 +76,6 @@ namespace FBus_BE.Services.Implements
                 accounts = pageRequest.Direction == "desc"
                     ? await _context.Accounts.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
-                                             .Where(account => !account.Status.Equals((int)AccountStatusEnum.Deleted))
                                              .Where(account => pageRequest.Code != null && pageRequest.Email != null
                                                                ? account.Code.Contains(pageRequest.Code) || account.Email.Contains(pageRequest.Email)
                                                                : pageRequest.Code != null && pageRequest.Email == null
@@ -89,7 +87,6 @@ namespace FBus_BE.Services.Implements
                                              .ToListAsync()
                     : await _context.Accounts.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
-                                             .Where(account => !account.Status.Equals((int)AccountStatusEnum.Deleted))
                                              .Where(account => pageRequest.Code != null && pageRequest.Email != null
                                                                ? account.Code.Contains(pageRequest.Code) || account.Email.Contains(pageRequest.Email)
                                                                : pageRequest.Code != null && pageRequest.Email == null
