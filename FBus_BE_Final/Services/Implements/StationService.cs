@@ -295,7 +295,7 @@ namespace FBus_BE.Services.Implements
             {
                 if (!errors.ContainsKey("Code"))
                 {
-                    errors.Add("Code", "Code is unavailable");
+                    errors.Add("Code", "Code is used by " + station.Name);
                 }
             }
         }
@@ -311,7 +311,7 @@ namespace FBus_BE.Services.Implements
             {
                 if (!errors.ContainsKey("Code"))
                 {
-                    errors.Add("Code", "Code is unavailable");
+                    errors.Add("Code", "Code is used by " + station.Name);
                 }
             }
         }
