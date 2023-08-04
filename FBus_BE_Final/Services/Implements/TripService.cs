@@ -236,19 +236,19 @@ namespace FBus_BE.Services.Implements
             if (dateLine.Date <= DateTime.Now)
             {
                 hasErrors = true;
-                errors.Add("dateLine", "DateLine must be beyond today");
+                errors.Add("DateLine", "DateLine must be beyond today");
             }
             if (dueDate.Date <= DateTime.Now)
             {
                 hasErrors = true;
-                errors.Add("dueDate", "DueDate must be beyond today");
+                errors.Add("DueDate", "DueDate must be beyond today");
             }
             else
             {
                 if (dueDate.Date < dateLine.Date)
                 {
                     hasErrors = true;
-                    errors.Add("dueDate", "DueDate must be beyond Dateline");
+                    errors.Add("DueDate", "DueDate must be beyond Dateline");
                 } else
                 {
                     if(dueDate.Date == dateLine.Date)
@@ -275,7 +275,7 @@ namespace FBus_BE.Services.Implements
                 .FirstOrDefaultAsync();
             if (tripHasDriver != null)
             {
-                errors.Add("driverId", "This Driver is occupied within that range of time");
+                errors.Add("DriverId", "This Driver is occupied within that range of time");
                 hasErrors = true;
             }
             Trip? tripHasBus = await _context.Trips
@@ -283,7 +283,7 @@ namespace FBus_BE.Services.Implements
                 .FirstOrDefaultAsync();
             if (tripHasBus != null)
             {
-                errors.Add("busId", "This Bus is occupied within that range of time");
+                errors.Add("BusId", "This Bus is occupied within that range of time");
                 hasErrors = true;
             }
             Trip? tripHasRoute = await _context.Trips
@@ -291,7 +291,7 @@ namespace FBus_BE.Services.Implements
                 .FirstOrDefaultAsync();
             if (tripHasDriver != null)
             {
-                errors.Add("routeId", "This Route is occupied within that range of time");
+                errors.Add("RouteId", "This Route is occupied within that range of time");
                 hasErrors = true;
             }
 
