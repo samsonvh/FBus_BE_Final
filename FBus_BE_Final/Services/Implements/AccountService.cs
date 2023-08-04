@@ -3,6 +3,7 @@ using FBus_BE.DTOs;
 using FBus_BE.DTOs.PageDTOs;
 using FBus_BE.Enums;
 using FBus_BE.Models;
+using FBus_BE.Utils;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -60,9 +61,34 @@ namespace FBus_BE.Services.Implements
             {
                 pageRequest.OrderBy = "id";
             }
+            AccountStatusEnum statusEnum = AccountStatusEnum.Active;
+            bool validStatus = false;
+            if(pageRequest.Status != null)
+            {
+                switch(TextUtil.Capitalize(pageRequest.Status))
+                {
+                    case nameof(AccountStatusEnum.Active):
+                        statusEnum = AccountStatusEnum.Active;
+                        validStatus = true;
+                        break;
+                    case nameof(AccountStatusEnum.Inactive):
+                        statusEnum = AccountStatusEnum.Inactive;
+                        validStatus = true;
+                        break;
+                    case nameof(AccountStatusEnum.Deleted):
+                        statusEnum = AccountStatusEnum.Deleted;
+                        validStatus = true;
+                        break;
+                    case nameof(AccountStatusEnum.Unsigned):
+                        statusEnum = AccountStatusEnum.Unsigned;
+                        validStatus = true;
+                        break;
+                }
+            }
             int skippedCount = (int)((pageRequest.PageIndex - 1) * pageRequest.PageSize);
             List<AccountDto> accounts = new List<AccountDto>();
             int totalCount = await _context.Accounts
+                .Where(account => (validStatus) ? account.Status == (byte)statusEnum : true)
                 .Where(account => pageRequest.Code != null && pageRequest.Email != null
                                   ? account.Code.Contains(pageRequest.Code) || account.Email.Contains(pageRequest.Email)
                                   : pageRequest.Code != null && pageRequest.Email == null
@@ -76,6 +102,7 @@ namespace FBus_BE.Services.Implements
                 accounts = pageRequest.Direction == "desc"
                     ? await _context.Accounts.OrderByDescending(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
+                                             .Where(account => (validStatus) ? account.Status == (byte)statusEnum : true)
                                              .Where(account => pageRequest.Code != null && pageRequest.Email != null
                                                                ? account.Code.Contains(pageRequest.Code) || account.Email.Contains(pageRequest.Email)
                                                                : pageRequest.Code != null && pageRequest.Email == null
@@ -87,6 +114,7 @@ namespace FBus_BE.Services.Implements
                                              .ToListAsync()
                     : await _context.Accounts.OrderBy(_orderDict[pageRequest.OrderBy.ToLower()])
                                              .Skip(skippedCount)
+                                             .Where(account => (validStatus) ? account.Status == (byte)statusEnum : true)
                                              .Where(account => pageRequest.Code != null && pageRequest.Email != null
                                                                ? account.Code.Contains(pageRequest.Code) || account.Email.Contains(pageRequest.Email)
                                                                : pageRequest.Code != null && pageRequest.Email == null
