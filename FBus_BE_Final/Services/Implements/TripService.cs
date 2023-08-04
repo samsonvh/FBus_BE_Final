@@ -245,10 +245,13 @@ namespace FBus_BE.Services.Implements
             }
             else
             {
-                if (dueDate.TimeOfDay <= dateLine.TimeOfDay)
+                if (dueDate.Date <= dateLine.Date)
                 {
-                    hasErrors = true;
-                    errors.Add("dueDate", "DueDate must be beyond Dateline");
+                    if (dueDate.TimeOfDay <= dateLine.TimeOfDay)
+                    {
+                        hasErrors = true;
+                        errors.Add("dueDate", "DueDate must be beyond Dateline");
+                    }
                 }
             }
             if (hasErrors)
